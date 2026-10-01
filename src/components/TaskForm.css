@@ -1,0 +1,27 @@
+.task-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.task-form input[type='text'] {
+  flex: 1 1 200px;
+}
+
+.task-form input,
+.task-form select,
+.task-form button {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+
+.task-form button[type='submit'] {
+  background: #7b61ff;
+  border-color: #7b61ff;
+  color: #fff;
+  cursor: pointer;
+}
