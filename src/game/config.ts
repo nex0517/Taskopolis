@@ -15,3 +15,27 @@ export const MEDIUM_TASK_REWARD = 3;
 
 /** Coins paid when a large task is completed. */
 export const LARGE_TASK_REWARD = 8;
+
+/** Cost of the cheapest building in each district. */
+export const TIER_1_BUILDING_COST = 3;
+
+/** Cost of the second building in each district. */
+export const TIER_2_BUILDING_COST = 6;
+
+/** Cost of the third building in each district. */
+export const TIER_3_BUILDING_COST = 10;
+
+/** Cost of the fourth building in Education and Parks. */
+export const TIER_4_BUILDING_COST = 15;
+
+/** Coins taken from each category when building a home. */
+export const HOME_COST_PER_CATEGORY = 1;
+
+/** Different categories needed to build a home. */
+export const HOME_CATEGORY_COUNT = 3;
+
+/** Residents housed by each home. */
+export const PEOPLE_PER_HOME = 4;
+
+/** Residents supported by each district building. */
+export const PEOPLE_PER_SERVICE_BUILDING = 8;

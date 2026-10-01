@@ -17,6 +17,7 @@ function TaskForm({ editing, onSubmit, onCancelEdit }: TaskFormProps) {
   const [category, setCategory] = useState(editing?.category ?? CATEGORIES[0]);
   const [size, setSize] = useState(editing?.size ?? 'M');
   const [dueDate, setDueDate] = useState(editing?.dueDate ?? '');
+  const fieldsLocked = editing !== null && editing.completedAt !== null;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -42,6 +43,7 @@ function TaskForm({ editing, onSubmit, onCancelEdit }: TaskFormProps) {
         value={category}
         onChange={(e) => setCategory(e.target.value as typeof category)}
         aria-label="Category"
+        disabled={fieldsLocked}
       >
         {CATEGORIES.map((c) => (
           <option key={c} value={c}>
@@ -53,6 +55,7 @@ function TaskForm({ editing, onSubmit, onCancelEdit }: TaskFormProps) {
         value={size}
         onChange={(e) => setSize(e.target.value as typeof size)}
         aria-label="Size"
+        disabled={fieldsLocked}
       >
         {TASK_SIZES.map((s) => (
           <option key={s} value={s}>
@@ -66,6 +69,11 @@ function TaskForm({ editing, onSubmit, onCancelEdit }: TaskFormProps) {
         onChange={(e) => setDueDate(e.target.value)}
         aria-label="Due date (optional)"
       />
+      {fieldsLocked && (
+        <p className="task-form-hint">
+          Un-complete this task to change its category or size.
+        </p>
+      )}
       <button type="submit">{editing ? 'Save' : 'Add task'}</button>
       {editing && (
         <button type="button" onClick={onCancelEdit}>

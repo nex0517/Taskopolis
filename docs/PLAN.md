@@ -34,7 +34,18 @@
 - Run `npm test`, `npm run build`, and `npm run lint`; fix any failures.
 - Commit as `Milestone 2: economy`, open a PR, browser-test the wallet display and completion flow, then report and stop.
 
-## Milestone 3 — The city (not started)
+## Milestone 3 — The city
+
+- Add typed city data in `src/game/types.ts`: a list of building types and a `PlacedBuilding` (`type`, `row`, `col`); the city is `{ buildings: PlacedBuilding[] }`, so the version-1 save shape stays compatible.
+- Add all new numbers to `src/game/config.ts`: four building cost tiers, the home cost (1 coin from 3 different categories), 4 people per home, and 8 people supported per district building.
+- Add `src/game/buildings.ts`: the building catalogue (name, emoji, category, tier) for all six districts plus homes, and a cost lookup.
+- Extend `src/game/economy.ts` with affordability and payment for buildings, including homes (paid from the three richest categories).
+- Add `src/game/city.ts` with pure functions: find the building on a tile, place a building (refusing out-of-bounds, occupied, or unaffordable tiles), and compute population = min(homes × 4, district buildings × 8).
+- Tighten save validation so imported/loaded saves must contain valid placed buildings.
+- UI: a shop panel showing each building's cost and whether you can afford it, a 12×12 CSS-grid city, and the population at the top of the page. React only calls the game functions.
+- Fix a Milestone 2 review finding: a completed task's category and size are locked, so un-completing always refunds what was actually paid.
+- Tests for placement on an empty tile, occupied tile, unaffordable, population cap, home payments, the catalogue, and save validation; then run `npm test`, `npm run build`, and `npm run lint`.
+- Commit as `Milestone 3: city`, open a PR, check it in the browser, then report and stop.
 
 ## Milestone 4 — Neglect (not started)
 

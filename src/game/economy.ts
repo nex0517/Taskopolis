@@ -1,11 +1,16 @@
 // Pure wallet operations. These functions never mutate the input wallet.
 
 import {
+  HOME_CATEGORY_COUNT,
+  HOME_COST_PER_CATEGORY,
   LARGE_TASK_REWARD,
   MEDIUM_TASK_REWARD,
   SMALL_TASK_REWARD,
 } from './config';
+import { buildingCost } from './buildings';
+import type { BuildingDef } from './buildings';
 import type { Task, TaskCategory, TaskSize, Wallet } from './types';
+import { CATEGORIES } from './types';
 
 /** Return the configured reward for a task size. */
 export function rewardForSize(size: TaskSize): number {
@@ -70,4 +75,42 @@ export function refundTaskReward(
   task: Pick<Task, 'category' | 'size'>,
 ): Wallet {
   return refundCoins(wallet, task.category, rewardForTask(task));
+}
+
+/** Check whether enough different categories can each pay for a home. */
+export function canAffordHome(wallet: Wallet): boolean {
+  return (
+    CATEGORIES.filter((category) => wallet[category] >= HOME_COST_PER_CATEGORY)
+      .length >= HOME_CATEGORY_COUNT
+  );
+}
+
+/** Pay for a home from the richest categories first. */
+export function spendForHome(wallet: Wallet): Wallet {
+  if (!canAffordHome(wallet)) return { ...wallet };
+  // Auto-picking the richest categories keeps the UI simple and spends the coins you have most of.
+  const chosen = [...CATEGORIES]
+    .sort(
+      (left, right) =>
+        wallet[right] - wallet[left] ||
+        CATEGORIES.indexOf(left) - CATEGORIES.indexOf(right),
+    )
+    .slice(0, HOME_CATEGORY_COUNT);
+  const updated = { ...wallet };
+  for (const category of chosen) {
+    updated[category] -= HOME_COST_PER_CATEGORY;
+  }
+  return updated;
+}
+
+/** Check whether a wallet can pay for the selected building. */
+export function canAffordBuilding(wallet: Wallet, def: BuildingDef): boolean {
+  if (def.category === null) return canAffordHome(wallet);
+  return canAfford(wallet, def.category, buildingCost(def));
+}
+
+/** Pay for a home or a district building without mutating the wallet. */
+export function payForBuilding(wallet: Wallet, def: BuildingDef): Wallet {
+  if (def.category === null) return spendForHome(wallet);
+  return spendCoins(wallet, def.category, buildingCost(def));
 }

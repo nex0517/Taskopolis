@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react';
 
 import FilterBar, { type StatusFilter } from './components/FilterBar';
 import SaveControls from './components/SaveControls';
+import CityGrid from './components/CityGrid';
+import ShopPanel from './components/ShopPanel';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
+import WalletPanel from './components/WalletPanel';
 import {
   payTaskReward,
   refundTaskReward,
 } from './game/economy';
+import { cityStats, placeBuilding } from './game/city';
 import { parseSave, serializeSave } from './game/save';
 import {
   addTask,
@@ -16,8 +20,7 @@ import {
   updateTask,
   type TaskDraft,
 } from './game/tasks';
-import type { SaveData, Task, TaskCategory } from './game/types';
-import { CATEGORIES } from './game/types';
+import type { BuildingType, SaveData, Task, TaskCategory } from './game/types';
 import { loadSave, writeSave } from './storage';
 import './App.css';
 
@@ -26,6 +29,9 @@ function App() {
   const [loadResult] = useState(loadSave);
   const [save, setSave] = useState<SaveData>(loadResult.save);
   const [editing, setEditing] = useState<Task | null>(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<BuildingType | null>(
+    null,
+  );
   const [categoryFilter, setCategoryFilter] = useState<TaskCategory | 'all'>(
     'all',
   );
@@ -67,6 +73,32 @@ function App() {
     if (editing?.id === id) setEditing(null);
   }
 
+  function handleTileClick(row: number, col: number) {
+    if (selectedBuilding === null) {
+      setNotice('Pick a building from the shop first.');
+      return;
+    }
+    const result = placeBuilding(
+      save.city,
+      save.wallet,
+      selectedBuilding,
+      row,
+      col,
+    );
+    if (result.ok) {
+      setSave({ ...save, city: result.city, wallet: result.wallet });
+      setNotice('');
+      return;
+    }
+    if (result.reason === 'occupied') {
+      setNotice('That tile is already taken.');
+    } else if (result.reason === 'unaffordable') {
+      setNotice("You can't afford that building yet.");
+    } else {
+      setNotice('That tile is outside the city.');
+    }
+  }
+
   function handleExport() {
     const blob = new Blob([serializeSave(save)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -94,6 +126,10 @@ function App() {
       (statusFilter === 'all' ||
         (statusFilter === 'done') === (task.completedAt !== null)),
   );
+  const editingTask = editing
+    ? save.tasks.find((task) => task.id === editing.id) ?? null
+    : null;
+  const stats = cityStats(save.city);
 
   return (
     <main className="app">
@@ -101,6 +137,13 @@ function App() {
         <div>
           <h1>Taskopolis</h1>
           <p className="app-tagline">Complete real tasks. Build a city.</p>
+        </div>
+        <div className="population">
+          <strong>Population: {stats.population}</strong>
+          <span>
+            Homes house {stats.housing} · Services support{' '}
+            {stats.supported}
+          </span>
         </div>
         <SaveControls onExport={handleExport} onImport={handleImport} />
       </header>
@@ -111,39 +154,43 @@ function App() {
         </p>
       )}
 
-      <section className="wallet" aria-label="Wallet">
-        <h2>Wallet</h2>
-        <ul className="wallet-list">
-          {CATEGORIES.map((category) => (
-            <li key={category}>
-              <span>{category}</span>
-              <strong>{save.wallet[category]}</strong>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <WalletPanel wallet={save.wallet} />
 
-      {/* key forces a fresh form when switching between add and edit */}
-      <TaskForm
-        key={editing?.id ?? 'new'}
-        editing={editing}
-        onSubmit={handleSubmit}
-        onCancelEdit={() => setEditing(null)}
-      />
+      <div className="app-layout">
+        <section className="task-column" aria-label="Tasks">
+          {/* key forces a fresh form when switching between add and edit */}
+          <TaskForm
+            key={editingTask?.id ?? 'new'}
+            editing={editingTask}
+            onSubmit={handleSubmit}
+            onCancelEdit={() => setEditing(null)}
+          />
 
-      <FilterBar
-        category={categoryFilter}
-        status={statusFilter}
-        onCategoryChange={setCategoryFilter}
-        onStatusChange={setStatusFilter}
-      />
+          <FilterBar
+            category={categoryFilter}
+            status={statusFilter}
+            onCategoryChange={setCategoryFilter}
+            onStatusChange={setStatusFilter}
+          />
 
-      <TaskList
-        tasks={visibleTasks}
-        onToggle={handleToggle}
-        onEdit={setEditing}
-        onDelete={handleDelete}
-      />
+          <TaskList
+            tasks={visibleTasks}
+            onToggle={handleToggle}
+            onEdit={setEditing}
+            onDelete={handleDelete}
+          />
+        </section>
+
+        <section className="city-column" aria-label="City">
+          <h2>City</h2>
+          <ShopPanel
+            wallet={save.wallet}
+            selected={selectedBuilding}
+            onSelect={setSelectedBuilding}
+          />
+          <CityGrid city={save.city} onTileClick={handleTileClick} />
+        </section>
+      </div>
     </main>
   );
 }

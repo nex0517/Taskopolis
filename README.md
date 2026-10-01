@@ -50,6 +50,8 @@ Taskopolis/
 │   │   ├── types.ts      # Task, TaskCategory, SaveData, ...
 │   │   ├── tasks.ts      # pure task operations (add/edit/complete/delete)
 │   │   ├── economy.ts    # rewards, wallet updates, affordability, spending
+│   │   ├── buildings.ts  # building catalogue and costs
+│   │   ├── city.ts       # city placement and population rules
 │   │   ├── save.ts       # build/check/serialize the save object
 │   │   ├── migrate.ts    # upgrades old saves (stub for now)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
@@ -57,7 +59,10 @@ Taskopolis/
 │   │   ├── TaskForm.tsx  # add + edit form
 │   │   ├── TaskList.tsx  # the task rows
 │   │   ├── FilterBar.tsx # category + done/not-done filters
-│   │   └── SaveControls.tsx # export/import buttons
+│   │   ├── SaveControls.tsx # export/import buttons
+│   │   ├── WalletPanel.tsx  # category coin balances
+│   │   ├── ShopPanel.tsx    # building catalogue and selection
+│   │   └── CityGrid.tsx     # interactive city tiles
 │   ├── storage.ts        # the ONLY file that touches localStorage
 │   ├── App.tsx           # top-level page: owns the save, wires components
 │   ├── App.css           # styles for App

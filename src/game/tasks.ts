@@ -35,9 +35,18 @@ export function updateTask(
   id: string,
   changes: TaskDraft,
 ): Task[] {
-  return tasks.map((task) =>
-    task.id === id ? { ...task, ...changes, title: changes.title.trim() } : task,
-  );
+  return tasks.map((task) => {
+    if (task.id !== id) return task;
+    if (task.completedAt !== null) {
+      // Coins were already paid for this category and size.
+      return {
+        ...task,
+        title: changes.title.trim(),
+        dueDate: changes.dueDate,
+      };
+    }
+    return { ...task, ...changes, title: changes.title.trim() };
+  });
 }
 
 /** Mark a task done or open. `now` is injectable for tests. */

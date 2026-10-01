@@ -1,0 +1,68 @@
+.city-grid {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #dedee8;
+  border-radius: 8px;
+  background: #e7e9ed;
+}
+
+.city-tile {
+  display: flex;
+  min-width: 0;
+  aspect-ratio: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 2px;
+  border: 1px solid #c8cbd1;
+  border-radius: 4px;
+  color: #20202a;
+  cursor: pointer;
+}
+
+.city-tile-empty {
+  background: #fafbfc;
+}
+
+.city-tile-emoji {
+  font-size: clamp(0.85rem, 2vw, 1.45rem);
+  line-height: 1.1;
+}
+
+.city-tile-name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(0.42rem, 0.9vw, 0.65rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home {
+  background: #f4d8a8;
+}
+
+.district-study {
+  background: #d9d5ff;
+}
+
+.district-health {
+  background: #d4edcf;
+}
+
+.district-chores {
+  background: #cde9ef;
+}
+
+.district-money-admin {
+  background: #f1e0ae;
+}
+
+.district-social {
+  background: #f6d5e5;
+}
+
+.district-projects {
+  background: #d5e1f5;
+}

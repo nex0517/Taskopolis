@@ -91,6 +91,26 @@ describe('updateTask', () => {
     // generated fields are preserved
     expect(tasks[0].createdAt).toBe('2026-09-30T00:00:00.000Z');
   });
+
+  it('keeps category and size when editing a completed task', () => {
+    const completed = makeTask({
+      category: 'Health',
+      size: 'S',
+      completedAt: '2026-10-01T00:00:00.000Z',
+    });
+    const tasks = updateTask([completed], 'task-1', {
+      title: '  Updated title  ',
+      category: 'Social',
+      size: 'L',
+      dueDate: '2026-12-01',
+    });
+    expect(tasks[0]).toMatchObject({
+      title: 'Updated title',
+      category: 'Health',
+      size: 'S',
+      dueDate: '2026-12-01',
+    });
+  });
 });
 
 describe('removeTask', () => {
