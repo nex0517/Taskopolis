@@ -126,6 +126,9 @@ function App() {
       (statusFilter === 'all' ||
         (statusFilter === 'done') === (task.completedAt !== null)),
   );
+  const editingTask = editing
+    ? save.tasks.find((task) => task.id === editing.id) ?? null
+    : null;
   const stats = cityStats(save.city);
 
   return (
@@ -157,8 +160,8 @@ function App() {
         <section className="task-column" aria-label="Tasks">
           {/* key forces a fresh form when switching between add and edit */}
           <TaskForm
-            key={editing?.id ?? 'new'}
-            editing={editing}
+            key={editingTask?.id ?? 'new'}
+            editing={editingTask}
             onSubmit={handleSubmit}
             onCancelEdit={() => setEditing(null)}
           />

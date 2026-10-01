@@ -52,8 +52,15 @@ function isSaveData(data: unknown): data is SaveData {
     typeof save.city === 'object' &&
     save.city !== null &&
     Array.isArray(save.city.buildings) &&
-    save.city.buildings.every(isPlacedBuilding)
+    save.city.buildings.every(isPlacedBuilding) &&
+    hasUniqueTiles(save.city.buildings)
   );
+}
+
+function hasUniqueTiles(buildings: PlacedBuilding[]): boolean {
+  // The grid shows one building per tile, so duplicates would inflate population.
+  const tiles = new Set(buildings.map(({ row, col }) => `${row},${col}`));
+  return tiles.size === buildings.length;
 }
 
 function isPlacedBuilding(building: unknown): building is PlacedBuilding {

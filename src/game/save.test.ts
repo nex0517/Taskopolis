@@ -74,6 +74,28 @@ describe('parseSave', () => {
     expect(parseSave(serializeSave(save))).toEqual(save);
   });
 
+  it('rejects buildings that overlap the same tile', () => {
+    const save = {
+      ...newGame(),
+      city: {
+        buildings: [
+          { type: 'home', row: 0, col: 0 },
+          { type: 'school', row: 0, col: 0 },
+        ],
+      },
+    };
+    expect(parseSave(JSON.stringify(save))).toBeNull();
+  });
+
+  it('parses buildings on different tiles', () => {
+    const save = newGame();
+    save.city.buildings.push(
+      { type: 'home', row: 0, col: 0 },
+      { type: 'school', row: 0, col: 1 },
+    );
+    expect(parseSave(serializeSave(save))).toEqual(save);
+  });
+
   it('sends other saveVersions through migrate() and still returns data', () => {
     const save = { ...newGame(), saveVersion: 99 };
     expect(parseSave(serializeSave(save))).toEqual(save);
