@@ -7,7 +7,7 @@ how balanced your life is.
 
 ## Install and run
 
-You need [Node.js](https://nodejs.org/) (v20 or newer) and npm.
+You need [Node.js](https://nodejs.org/) (v22.12 or newer — Vitest 5 and Vite 8 both require it) and npm.
 
 ```bash
 npm install   # download dependencies (first time only)
