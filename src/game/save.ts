@@ -1,9 +1,10 @@
 // Building, checking, and (de)serializing the save object.
 // Pure functions only — the localStorage calls live in src/storage.ts.
 
-import { SAVE_VERSION } from './config';
+import { GRID_SIZE, SAVE_VERSION } from './config';
+import { BUILDING_TYPES } from './types';
 import { migrate } from './migrate';
-import type { SaveData, Task, Wallet } from './types';
+import type { PlacedBuilding, SaveData, Task, Wallet } from './types';
 import { CATEGORIES } from './types';
 
 /** A brand-new save: no tasks, empty wallet, empty city. */
@@ -50,7 +51,23 @@ function isSaveData(data: unknown): data is SaveData {
     typeof save.wallet === 'object' &&
     save.wallet !== null &&
     typeof save.city === 'object' &&
-    save.city !== null
+    save.city !== null &&
+    Array.isArray(save.city.buildings) &&
+    save.city.buildings.every(isPlacedBuilding)
+  );
+}
+
+function isPlacedBuilding(building: unknown): building is PlacedBuilding {
+  if (typeof building !== 'object' || building === null) return false;
+  const placed = building as PlacedBuilding;
+  return (
+    BUILDING_TYPES.includes(placed.type) &&
+    Number.isInteger(placed.row) &&
+    Number.isInteger(placed.col) &&
+    placed.row >= 0 &&
+    placed.row < GRID_SIZE &&
+    placed.col >= 0 &&
+    placed.col < GRID_SIZE
   );
 }
 

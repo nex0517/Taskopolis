@@ -1,5 +1,5 @@
 .app {
-  max-width: 720px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
 }
@@ -12,6 +12,10 @@
   margin-bottom: 16px;
 }
 
+.app-header > div:first-child {
+  flex-shrink: 0;
+}
+
 .app-header h1 {
   margin: 0;
 }
@@ -19,6 +23,18 @@
 .app-tagline {
   margin: 4px 0 0;
   font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.population {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 1.2rem;
+}
+
+.population span {
+  font-size: 0.78rem;
   opacity: 0.7;
 }
 
@@ -30,40 +46,28 @@
   background: #fdf6dd;
 }
 
-.wallet {
-  margin-bottom: 20px;
-  padding: 12px;
-  border: 1px solid #dedee8;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.wallet h2 {
-  margin: 0 0 8px;
-  font-size: 1rem;
-}
-
-.wallet-list {
+.app-layout {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+  gap: 24px;
 }
 
-.wallet-list li {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 5px;
-  background: #f1f0ff;
-  font-size: 0.9rem;
+.task-column,
+.city-column {
+  min-width: 0;
 }
 
-@media (max-width: 600px) {
-  .wallet-list {
-    grid-template-columns: repeat(2, 1fr);
+.city-column h2 {
+  margin: 0 0 10px;
+}
+
+@media (max-width: 900px) {
+  .app-header {
+    flex-wrap: wrap;
+  }
+
+  .app-layout {
+    grid-template-columns: 1fr;
   }
 }

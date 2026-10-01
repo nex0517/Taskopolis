@@ -50,6 +50,27 @@ describe('parseSave', () => {
       completedAt: '2026-10-01T01:00:00.000Z',
     });
     save.wallet.Chores = 7;
+    save.city.buildings.push({ type: 'home', row: 0, col: 1 });
+    expect(parseSave(serializeSave(save))).toEqual(save);
+  });
+
+  it('rejects an unknown building type', () => {
+    const save = { ...newGame(), city: { buildings: [{ type: 'castle', row: 0, col: 0 }] } };
+    expect(parseSave(JSON.stringify(save))).toBeNull();
+  });
+
+  it.each([
+    { type: 'home', row: -1, col: 0 },
+    { type: 'home', row: 0, col: 12 },
+    { type: 'home', row: 1.5, col: 0 },
+    { type: 'home', row: 0, col: 1.5 },
+  ])('rejects an invalid building position: %o', (building) => {
+    const save = { ...newGame(), city: { buildings: [building] } };
+    expect(parseSave(JSON.stringify(save))).toBeNull();
+  });
+
+  it('still parses an old save with an empty buildings array', () => {
+    const save = newGame();
     expect(parseSave(serializeSave(save))).toEqual(save);
   });
 

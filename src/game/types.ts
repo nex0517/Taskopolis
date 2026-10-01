@@ -34,9 +34,42 @@ export interface Task {
 /** One coin balance per category (e.g. "Study coins"). */
 export type Wallet = Record<TaskCategory, number>;
 
-/** The city is built in milestone 3; the shape exists now so saves stay stable. */
+/** Buildings placed on the city grid. */
+export const BUILDING_TYPES = [
+  'home',
+  'school',
+  'library',
+  'lecture-hall',
+  'observatory',
+  'park',
+  'gym',
+  'clinic',
+  'stadium',
+  'water-tower',
+  'power-plant',
+  'recycling-centre',
+  'market',
+  'bank',
+  'city-hall',
+  'cafe',
+  'plaza',
+  'theatre',
+  'workshop',
+  'factory',
+  'tech-campus',
+] as const;
+
+export type BuildingType = (typeof BUILDING_TYPES)[number];
+
+export interface PlacedBuilding {
+  type: BuildingType;
+  row: number;
+  col: number;
+}
+
+/** The buildings currently placed in the city. */
 export interface CityData {
-  buildings: unknown[];
+  buildings: PlacedBuilding[];
 }
 
 /** Everything we persist — one object in localStorage. */
