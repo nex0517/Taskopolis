@@ -3,19 +3,28 @@ import { buildingAt } from '../game/city';
 import { getBuilding } from '../game/buildings';
 import { DISTRICT_PROBLEMS } from '../game/neglect';
 import type { CityData, TaskCategory } from '../game/types';
+import type { NewBuilding } from '../useJuice';
 import './CityGrid.css';
 
 interface CityGridProps {
   city: CityData;
   neglected: TaskCategory[];
+  newBuilding: NewBuilding | null;
   onTileClick: (row: number, col: number) => void;
+  onBuildEnd: () => void;
 }
 
 function districtClass(category: TaskCategory): string {
   return `district-${category.toLowerCase().replace(/[^a-z]+/g, '-')}`;
 }
 
-function CityGrid({ city, neglected, onTileClick }: CityGridProps) {
+function CityGrid({
+  city,
+  neglected,
+  newBuilding,
+  onTileClick,
+  onBuildEnd,
+}: CityGridProps) {
   return (
     <div
       className="city-grid"
@@ -52,11 +61,15 @@ function CityGrid({ city, neglected, onTileClick }: CityGridProps) {
             ? `${definition.name} — ${problem}: a ${definition.category} task is overdue`
             : definition.name;
           const tileClass = problem ? ' city-tile-neglected' : '';
+          const isNew =
+            newBuilding !== null &&
+            newBuilding.row === row &&
+            newBuilding.col === col;
           return (
             <button
               key={`${row}-${col}`}
               type="button"
-              className={`city-tile ${className}${tileClass}`}
+              className={`city-tile ${className}${tileClass}${isNew ? ' city-tile-new' : ''}`}
               title={title}
               aria-label={
                 problem
@@ -64,6 +77,9 @@ function CityGrid({ city, neglected, onTileClick }: CityGridProps) {
                   : `${definition.name}, row ${rowLabel}, column ${colLabel}`
               }
               onClick={() => onTileClick(row, col)}
+              onAnimationEnd={(event) => {
+                if (event.animationName === 'construct') onBuildEnd();
+              }}
             >
               <span className="city-tile-emoji" aria-hidden="true">
                 {definition.emoji}

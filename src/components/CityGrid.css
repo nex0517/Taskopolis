@@ -7,6 +7,33 @@
   background: #e7e9ed;
 }
 
+@keyframes construct {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.3;
+  }
+
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes neglect-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .city-tile {
   position: relative;
   display: flex;
@@ -27,6 +54,11 @@
   filter: grayscale(0.85);
   opacity: 0.7;
   border-style: dashed;
+  animation: neglect-pulse 2.4s ease-in-out infinite;
+}
+
+.city-tile-new {
+  animation: construct 450ms ease-out;
 }
 
 .city-tile-warning {
@@ -79,4 +111,11 @@
 
 .district-projects {
   background: #d5e1f5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-tile-new,
+  .city-tile-neglected {
+    animation: none;
+  }
 }

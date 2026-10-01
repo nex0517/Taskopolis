@@ -9,11 +9,45 @@
 }
 
 .task-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 8px;
   border-bottom: 1px solid #e2e2e8;
+}
+
+.coin-pop {
+  position: absolute;
+  top: 0;
+  left: 30px;
+  z-index: 1;
+  color: #a66a00;
+  font-weight: 700;
+  pointer-events: none;
+  animation: coin-fly 900ms ease-out forwards;
+}
+
+@keyframes coin-fly {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-28px);
+    opacity: 0;
+  }
+}
+
+@keyframes coin-fade {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 .task-row.done .task-title {
@@ -62,4 +96,10 @@
   font-size: 0.85rem;
   background: #fff;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-pop {
+    animation-name: coin-fade;
+  }
 }
