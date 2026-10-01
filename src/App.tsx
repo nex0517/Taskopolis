@@ -56,7 +56,10 @@ function App() {
   }
 
   function handleToggle(task: Task) {
-    if (task.completedAt === null) {
+    if (task.completedAt !== null) {
+      juice.clearCoinPop();
+    } else if (statusFilter !== 'open') {
+      // Under "To do" the row vanishes on completion, so the label would show up later instead.
       juice.showCoinPop(task.id, `+${rewardForTask(task)} ${task.category}`);
     }
     setSave((current) => {
