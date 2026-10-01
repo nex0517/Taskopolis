@@ -49,6 +49,7 @@ Taskopolis/
 │   │   ├── config.ts     # every balance number, commented
 │   │   ├── types.ts      # Task, TaskCategory, SaveData, ...
 │   │   ├── tasks.ts      # pure task operations (add/edit/complete/delete)
+│   │   ├── economy.ts    # rewards, wallet updates, affordability, spending
 │   │   ├── save.ts       # build/check/serialize the save object
 │   │   ├── migrate.ts    # upgrades old saves (stub for now)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test

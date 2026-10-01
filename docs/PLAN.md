@@ -22,7 +22,17 @@
 - Tests: task add/complete/un-complete/edit/delete, `loadSave` edge cases via a fake storage, export→import gives identical data.
 - Verify `npm test` and `npm run build`, update README layout, commit, open PR.
 
-## Milestone 2 — Economy (not started)
+## Milestone 2 — Economy
+
+- Add the task reward numbers to `src/game/config.ts`: S=1, M=3, L=8, each with a one-line comment.
+- Add `src/game/economy.ts` with pure functions for reward calculation, adding a reward, checking affordability, spending coins, and refunding on un-complete without going below zero.
+- Keep all wallet changes as data-in/data-out functions; no React, DOM, or localStorage in the game folder.
+- Add Vitest coverage for every economy function, including spending and the un-complete edge case where coins were already spent.
+- Update task completion handling in `App.tsx` so completing a task pays its category and un-completing takes the reward back.
+- Show all six category balances in a small wallet panel at the top of the page.
+- Keep the save shape unchanged: the wallet already exists in the version-1 save object and will now contain real balances.
+- Run `npm test`, `npm run build`, and `npm run lint`; fix any failures.
+- Commit as `Milestone 2: economy`, open a PR, browser-test the wallet display and completion flow, then report and stop.
 
 ## Milestone 3 — The city (not started)
 

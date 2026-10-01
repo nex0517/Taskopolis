@@ -4,6 +4,10 @@ import FilterBar, { type StatusFilter } from './components/FilterBar';
 import SaveControls from './components/SaveControls';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
+import {
+  payTaskReward,
+  refundTaskReward,
+} from './game/economy';
 import { parseSave, serializeSave } from './game/save';
 import {
   addTask,
@@ -13,6 +17,7 @@ import {
   type TaskDraft,
 } from './game/tasks';
 import type { SaveData, Task, TaskCategory } from './game/types';
+import { CATEGORIES } from './game/types';
 import { loadSave, writeSave } from './storage';
 import './App.css';
 
@@ -45,9 +50,15 @@ function App() {
   }
 
   function handleToggle(task: Task) {
-    setSave({
-      ...save,
-      tasks: setTaskCompleted(save.tasks, task.id, task.completedAt === null),
+    setSave((current) => {
+      const completing = task.completedAt === null;
+      return {
+        ...current,
+        tasks: setTaskCompleted(current.tasks, task.id, completing),
+        wallet: completing
+          ? payTaskReward(current.wallet, task)
+          : refundTaskReward(current.wallet, task),
+      };
     });
   }
 
@@ -99,6 +110,18 @@ function App() {
           {notice}
         </p>
       )}
+
+      <section className="wallet" aria-label="Wallet">
+        <h2>Wallet</h2>
+        <ul className="wallet-list">
+          {CATEGORIES.map((category) => (
+            <li key={category}>
+              <span>{category}</span>
+              <strong>{save.wallet[category]}</strong>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {/* key forces a fresh form when switching between add and edit */}
       <TaskForm
