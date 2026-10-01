@@ -1,0 +1,14 @@
+.save-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.save-controls button {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  background: #fff;
+  cursor: pointer;
+}

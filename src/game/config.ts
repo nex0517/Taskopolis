@@ -3,3 +3,6 @@
 
 /** The city grid starts as a square of this many tiles per side. */
 export const GRID_SIZE = 12;
+
+/** Current save format version — bump when the save shape changes. */
+export const SAVE_VERSION = 1;

@@ -47,8 +47,18 @@ Taskopolis/
 ├── src/
 │   ├── game/             # ALL game rules — plain TS, no React/DOM
 │   │   ├── config.ts     # every balance number, commented
-│   │   └── config.test.ts
-│   ├── App.tsx           # top-level page component
+│   │   ├── types.ts      # Task, TaskCategory, SaveData, ...
+│   │   ├── tasks.ts      # pure task operations (add/edit/complete/delete)
+│   │   ├── save.ts       # build/check/serialize the save object
+│   │   ├── migrate.ts    # upgrades old saves (stub for now)
+│   │   └── *.test.ts     # Vitest tests, next to the code they test
+│   ├── components/       # React UI (each .tsx has a matching .css)
+│   │   ├── TaskForm.tsx  # add + edit form
+│   │   ├── TaskList.tsx  # the task rows
+│   │   ├── FilterBar.tsx # category + done/not-done filters
+│   │   └── SaveControls.tsx # export/import buttons
+│   ├── storage.ts        # the ONLY file that touches localStorage
+│   ├── App.tsx           # top-level page: owns the save, wires components
 │   ├── App.css           # styles for App
 │   ├── index.css         # global base styles
 │   └── main.tsx          # entry point: mounts <App/> into index.html
