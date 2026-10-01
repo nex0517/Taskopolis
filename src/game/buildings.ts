@@ -6,7 +6,6 @@ import {
   TIER_4_BUILDING_COST,
 } from './config';
 import type { BuildingType, TaskCategory } from './types';
-import { BUILDING_TYPES } from './types';
 
 export type BuildingTier = 1 | 2 | 3 | 4;
 
@@ -135,8 +134,4 @@ export function buildingCost(def: BuildingDef): number {
   if (def.tier === 2) return TIER_2_BUILDING_COST;
   if (def.tier === 3) return TIER_3_BUILDING_COST;
   return TIER_4_BUILDING_COST;
-}
-
-if (BUILDINGS.length !== BUILDING_TYPES.length) {
-  throw new Error('Each building type must have one catalogue entry.');
 }

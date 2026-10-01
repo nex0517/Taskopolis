@@ -2,10 +2,9 @@
 // Pure functions only — the localStorage calls live in src/storage.ts.
 
 import { GRID_SIZE, SAVE_VERSION } from './config';
-import { BUILDING_TYPES } from './types';
 import { migrate } from './migrate';
 import type { PlacedBuilding, SaveData, Task, Wallet } from './types';
-import { CATEGORIES } from './types';
+import { BUILDING_TYPES, CATEGORIES } from './types';
 
 /** A brand-new save: no tasks, empty wallet, empty city. */
 export function newGame(): SaveData {

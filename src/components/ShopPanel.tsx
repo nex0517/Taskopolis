@@ -2,7 +2,12 @@ import {
   HOME_CATEGORY_COUNT,
   HOME_COST_PER_CATEGORY,
 } from '../game/config';
-import { buildingCost, BUILDINGS, DISTRICTS } from '../game/buildings';
+import {
+  buildingCost,
+  BUILDINGS,
+  DISTRICTS,
+  getBuilding,
+} from '../game/buildings';
 import { canAffordBuilding } from '../game/economy';
 import type { BuildingType, TaskCategory, Wallet } from '../game/types';
 import { CATEGORIES } from '../game/types';
@@ -16,8 +21,7 @@ interface ShopPanelProps {
 
 function ShopPanel({ wallet, selected, onSelect }: ShopPanelProps) {
   function renderBuilding(type: BuildingType) {
-    const building = BUILDINGS.find((item) => item.type === type);
-    if (!building) return null;
+    const building = getBuilding(type);
     const isSelected = selected === building.type;
     const unaffordable = !canAffordBuilding(wallet, building);
     const costText =

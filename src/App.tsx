@@ -126,7 +126,7 @@ function App() {
       (statusFilter === 'all' ||
         (statusFilter === 'done') === (task.completedAt !== null)),
   );
-  const population = cityStats(save.city);
+  const stats = cityStats(save.city);
 
   return (
     <main className="app">
@@ -136,10 +136,10 @@ function App() {
           <p className="app-tagline">Complete real tasks. Build a city.</p>
         </div>
         <div className="population">
-          <strong>Population: {population.population}</strong>
+          <strong>Population: {stats.population}</strong>
           <span>
-            Homes house {population.housing} · Services support{' '}
-            {population.supported}
+            Homes house {stats.housing} · Services support{' '}
+            {stats.supported}
           </span>
         </div>
         <SaveControls onExport={handleExport} onImport={handleImport} />
