@@ -47,6 +47,16 @@
 - Tests for placement on an empty tile, occupied tile, unaffordable, population cap, home payments, the catalogue, and save validation; then run `npm test`, `npm run build`, and `npm run lint`.
 - Commit as `Milestone 3: city`, open a PR, check it in the browser, then report and stop.
 
-## Milestone 4 — Neglect (not started)
+## Milestone 4 — Neglect
+
+- Add `src/game/neglect.ts` with pure functions: today's date as a `YYYY-MM-DD` key, "is this task overdue?", and "which categories have an overdue task?".
+- A task is overdue only if it is not completed, has a due date, and that date is before today. Tasks with no due date never cause neglect, and tasks due today are not overdue yet.
+- "Today" uses the local calendar date (not UTC), because due dates come from the browser's date picker in local time.
+- Each district gets a named problem (flickering lights, weeds, potholes, unpaid bills, graffiti, broken machines) so the city shows what kind of trouble it is.
+- Nothing is stored for neglect: it is recalculated from the task list on every render, so completing, deleting, or re-dating the overdue task fixes the district immediately and the save format does not change.
+- UI: buildings in a neglected district are greyed out with a small ⚠️ badge and a tooltip; homes are never affected. A short line above the grid names the districts that need attention, and overdue tasks are labelled "overdue" in the list.
+- No penalties: coins, buildings, and population are unchanged by neglect, so no new balance numbers are needed in `config.ts`.
+- Tests for overdue detection (no due date, due today, due yesterday, due tomorrow, completed), neglected categories (order, duplicates, fixed by completing/deleting), and the local-date key; then run `npm test`, `npm run build`, and `npm run lint`.
+- Commit as `Milestone 4: neglect`, open a PR, check it in the browser, then report and stop.
 
 ## Milestone 5 — Juice (not started)

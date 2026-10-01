@@ -8,6 +8,7 @@
 }
 
 .city-tile {
+  position: relative;
   display: flex;
   min-width: 0;
   aspect-ratio: 1;
@@ -20,6 +21,19 @@
   border-radius: 4px;
   color: #20202a;
   cursor: pointer;
+}
+
+.city-tile-neglected {
+  filter: grayscale(0.85);
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.city-tile-warning {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: clamp(0.5rem, 1vw, 0.75rem);
 }
 
 .city-tile-empty {

@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 
 import FilterBar, { type StatusFilter } from './components/FilterBar';
 import SaveControls from './components/SaveControls';
-import CityGrid from './components/CityGrid';
-import ShopPanel from './components/ShopPanel';
+import CityPanel from './components/CityPanel';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import WalletPanel from './components/WalletPanel';
@@ -12,6 +11,7 @@ import {
   refundTaskReward,
 } from './game/economy';
 import { cityStats, placeBuilding } from './game/city';
+import { neglectedCategories } from './game/neglect';
 import { parseSave, serializeSave } from './game/save';
 import {
   addTask,
@@ -22,6 +22,7 @@ import {
 } from './game/tasks';
 import type { BuildingType, SaveData, Task, TaskCategory } from './game/types';
 import { loadSave, writeSave } from './storage';
+import { useToday } from './useToday';
 import './App.css';
 
 function App() {
@@ -44,7 +45,6 @@ function App() {
 
   // Persist the whole save object every time it changes.
   useEffect(() => writeSave(save), [save]);
-
   function handleSubmit(draft: TaskDraft, editingId: string | null) {
     setSave({
       ...save,
@@ -130,6 +130,8 @@ function App() {
     ? save.tasks.find((task) => task.id === editing.id) ?? null
     : null;
   const stats = cityStats(save.city);
+  const today = useToday();
+  const neglected = neglectedCategories(save.tasks, today);
 
   return (
     <main className="app">
@@ -175,21 +177,21 @@ function App() {
 
           <TaskList
             tasks={visibleTasks}
+            today={today}
             onToggle={handleToggle}
             onEdit={setEditing}
             onDelete={handleDelete}
           />
         </section>
 
-        <section className="city-column" aria-label="City">
-          <h2>City</h2>
-          <ShopPanel
-            wallet={save.wallet}
-            selected={selectedBuilding}
-            onSelect={setSelectedBuilding}
-          />
-          <CityGrid city={save.city} onTileClick={handleTileClick} />
-        </section>
+        <CityPanel
+          city={save.city}
+          wallet={save.wallet}
+          selected={selectedBuilding}
+          neglected={neglected}
+          onSelect={setSelectedBuilding}
+          onTileClick={handleTileClick}
+        />
       </div>
     </main>
   );
