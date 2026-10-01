@@ -11,7 +11,7 @@ import {
   refundTaskReward,
 } from './game/economy';
 import { cityStats, placeBuilding } from './game/city';
-import { neglectedCategories, todayKey } from './game/neglect';
+import { neglectedCategories } from './game/neglect';
 import { parseSave, serializeSave } from './game/save';
 import {
   addTask,
@@ -22,6 +22,7 @@ import {
 } from './game/tasks';
 import type { BuildingType, SaveData, Task, TaskCategory } from './game/types';
 import { loadSave, writeSave } from './storage';
+import { useToday } from './useToday';
 import './App.css';
 
 function App() {
@@ -44,7 +45,6 @@ function App() {
 
   // Persist the whole save object every time it changes.
   useEffect(() => writeSave(save), [save]);
-
   function handleSubmit(draft: TaskDraft, editingId: string | null) {
     setSave({
       ...save,
@@ -130,7 +130,7 @@ function App() {
     ? save.tasks.find((task) => task.id === editing.id) ?? null
     : null;
   const stats = cityStats(save.city);
-  const today = todayKey(new Date());
+  const today = useToday();
   const neglected = neglectedCategories(save.tasks, today);
 
   return (

@@ -65,6 +65,7 @@ Taskopolis/
 │   │   ├── ShopPanel.tsx    # building catalogue and selection
 │   │   └── CityGrid.tsx     # interactive city tiles
 │   ├── storage.ts        # the ONLY file that touches localStorage
+│   ├── useToday.ts       # local date refreshed once a minute
 │   ├── App.tsx           # top-level page: owns the save, wires components
 │   ├── App.css           # styles for App
 │   ├── index.css         # global base styles
