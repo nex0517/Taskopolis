@@ -52,6 +52,7 @@ Taskopolis/
 │   │   ├── economy.ts    # rewards, wallet updates, affordability, spending
 │   │   ├── buildings.ts  # building catalogue and costs
 │   │   ├── city.ts       # city placement and population rules
+│   │   ├── neglect.ts    # overdue tasks and district problems
 │   │   ├── save.ts       # build/check/serialize the save object
 │   │   ├── migrate.ts    # upgrades old saves (stub for now)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
