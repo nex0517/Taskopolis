@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
-import type { ArchivedSeason, SeasonsData } from '../game/types';
+import { WONDERS } from '../game/config';
+import type { ArchivedSeason, Goal, SeasonsData } from '../game/types';
 import { CATEGORIES } from '../game/types';
 import { formatDate } from '../formatDate';
 import MiniCity from './MiniCity';
@@ -87,7 +88,12 @@ function SeasonCard({ season, onRename }: SeasonCardProps) {
         Season {season.number} · {formatDate(season.startedAt)} –{' '}
         {formatDate(season.endedAt)}
       </p>
-      <MiniCity city={season.city} />
+      <MiniCity city={season.city} goals={season.goals} />
+      {season.goals.length > 0 && (
+        <p className="season-card-wonders">
+          Wonders: {season.goals.map(describeWonder).join(', ')}
+        </p>
+      )}
       <p className="season-card-population">
         Population {season.stats.population}
       </p>
@@ -101,6 +107,16 @@ function SeasonCard({ season, onRename }: SeasonCardProps) {
       </ul>
     </article>
   );
+}
+
+function describeWonder(goal: Goal): string {
+  const state =
+    goal.status === 'finished'
+      ? 'finished'
+      : goal.status === 'abandoned'
+        ? 'unfinished'
+        : 'still building';
+  return `${WONDERS[goal.category].name} (${state})`;
 }
 
 export default Gallery;

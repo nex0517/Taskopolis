@@ -30,6 +30,7 @@ function saveWithTask(): SaveData {
     dueDate: null,
     createdAt: '2026-10-01T00:00:00.000Z',
     completedAt: null,
+    goalId: null,
   });
   return save;
 }
@@ -82,7 +83,10 @@ describe('loadSave', () => {
   });
 
   it('treats a damaged version-2 save as corrupted: fresh save + backup', () => {
-    const damaged = { ...saveWithTask(), seasons: { current: null, archive: [] } };
+    const damaged = {
+      ...saveWithTask(),
+      seasons: { current: null, archive: [] },
+    };
     const raw = JSON.stringify(damaged);
     const { storage, data } = fakeStorage({ [SAVE_KEY]: raw });
     const result = loadSave(storage, now);

@@ -5,8 +5,10 @@ import { newGame, parseSave, serializeSave } from './save';
 import type {
   ArchivedSeason,
   CurrentSeason,
+  Goal,
   SaveData,
   SeasonStats,
+  Task,
   TasksPerCategory,
 } from './types';
 import { CATEGORIES } from './types';
@@ -21,6 +23,7 @@ function saveWithDueDate(dueDate: string | null) {
     dueDate,
     createdAt: '2026-01-01T00:00:00.000Z',
     completedAt: null,
+    goalId: null,
   });
   return save;
 }
@@ -96,6 +99,7 @@ describe('parseSave', () => {
       dueDate: null,
       createdAt: '2026-10-01T00:00:00.000Z',
       completedAt: '2026-10-01T01:00:00.000Z',
+      goalId: null,
     });
     save.wallet.Chores = 7;
     save.city.buildings.push({ type: 'home', row: 0, col: 1 });
@@ -103,7 +107,10 @@ describe('parseSave', () => {
   });
 
   it('rejects an unknown building type', () => {
-    const save = { ...newGame(), city: { buildings: [{ type: 'castle', row: 0, col: 0 }] } };
+    const save = {
+      ...newGame(),
+      city: { buildings: [{ type: 'castle', row: 0, col: 0 }] },
+    };
     expect(parseSave(JSON.stringify(save))).toBeNull();
   });
 
@@ -154,7 +161,7 @@ describe('parseSave', () => {
     expect(parseSave(serializeSave(save))).toBeNull();
   });
 
-  describe('version 2 fields', () => {
+  describe('version 2 and 3 fields', () => {
     function archivedSeason(): ArchivedSeason {
       const tasksCompleted = {} as TasksPerCategory;
       for (const category of CATEGORIES) tasksCompleted[category] = 0;
@@ -166,8 +173,41 @@ describe('parseSave', () => {
         endedAt: '2026-03-01T00:00:00.000Z',
         city: { buildings: [{ type: 'school', row: 2, col: 2 }] },
         stats: { tasksCompleted, population: 8 },
+        goals: [],
       };
     }
+
+    function sampleGoal(): Goal {
+      return {
+        id: 'g1',
+        title: 'Run a marathon',
+        category: 'Health',
+        row: 4,
+        col: 4,
+        progress: 12,
+        status: 'active',
+        createdAt: '2026-02-01T00:00:00.000Z',
+        closedAt: null,
+      };
+    }
+
+    it('round-trips goals, a linked task and an archived season with goals', () => {
+      const save = newGame();
+      save.goals.push(sampleGoal(), {
+        ...sampleGoal(),
+        id: 'g2',
+        row: 8,
+        status: 'abandoned',
+        closedAt: '2026-02-20T00:00:00.000Z',
+      });
+      save.tasks.push({ ...saveWithDueDate(null).tasks[0], goalId: 'g1' });
+      save.seasons.archive.push({ ...archivedSeason(), goals: [sampleGoal()] });
+      save.seasons.current = {
+        number: 2,
+        startedAt: '2026-03-01T00:00:00.000Z',
+      };
+      expect(parseSave(serializeSave(save))?.save).toEqual(save);
+    });
 
     it('round-trips a keepsake', () => {
       const save = newGame();
@@ -178,32 +218,137 @@ describe('parseSave', () => {
     it('round-trips an archived season', () => {
       const save = newGame();
       save.seasons.archive.push(archivedSeason());
-      save.seasons.current = { number: 2, startedAt: '2026-03-01T00:00:00.000Z' };
+      save.seasons.current = {
+        number: 2,
+        startedAt: '2026-03-01T00:00:00.000Z',
+      };
       expect(parseSave(serializeSave(save))?.save).toEqual(save);
     });
 
     it.each([
-      ['seasons missing', (save: SaveData) => delete (save as Partial<SaveData>).seasons],
-      ['current is null', (save: SaveData) => ((save.seasons as { current: unknown }).current = null)],
-      ['season number is 0', (save: SaveData) => (save.seasons.current.number = 0)],
-      ['season number is a string', (save: SaveData) => ((save.seasons.current as { number: unknown }).number = '1')],
-      ['startedAt missing', (save: SaveData) => delete (save.seasons.current as Partial<CurrentSeason>).startedAt],
-      ['archive is not a list', (save: SaveData) => ((save.seasons as { archive: unknown }).archive = {})],
-      ['goals missing', (save: SaveData) => delete (save as Partial<SaveData>).goals],
-      ['keepsake is a string', (save: SaveData) => ((save as { keepsake: unknown }).keepsake = 'ring')],
-      ['keepsake has no season', (save: SaveData) => ((save as { keepsake: unknown }).keepsake = { type: 'home', row: 0, col: 0 })],
-      ['keepsake is off the grid', (save: SaveData) => (save.keepsake = { type: 'home', row: 12, col: 0, fromSeason: 1 })],
-    ])('rejects a version-2 save where %s', (_label, damage) => {
+      [
+        'seasons missing',
+        (save: SaveData) => delete (save as Partial<SaveData>).seasons,
+      ],
+      [
+        'current is null',
+        (save: SaveData) =>
+          ((save.seasons as { current: unknown }).current = null),
+      ],
+      [
+        'season number is 0',
+        (save: SaveData) => (save.seasons.current.number = 0),
+      ],
+      [
+        'season number is a string',
+        (save: SaveData) =>
+          ((save.seasons.current as { number: unknown }).number = '1'),
+      ],
+      [
+        'startedAt missing',
+        (save: SaveData) =>
+          delete (save.seasons.current as Partial<CurrentSeason>).startedAt,
+      ],
+      [
+        'archive is not a list',
+        (save: SaveData) =>
+          ((save.seasons as { archive: unknown }).archive = {}),
+      ],
+      [
+        'goals missing',
+        (save: SaveData) => delete (save as Partial<SaveData>).goals,
+      ],
+      [
+        'keepsake is a string',
+        (save: SaveData) => ((save as { keepsake: unknown }).keepsake = 'ring'),
+      ],
+      [
+        'keepsake has no season',
+        (save: SaveData) =>
+          ((save as { keepsake: unknown }).keepsake = {
+            type: 'home',
+            row: 0,
+            col: 0,
+          }),
+      ],
+      [
+        'keepsake is off the grid',
+        (save: SaveData) =>
+          (save.keepsake = { type: 'home', row: 12, col: 0, fromSeason: 1 }),
+      ],
+      [
+        'a goal has no title',
+        (save: SaveData) =>
+          save.goals.push({ ...sampleGoal(), title: 7 } as unknown as Goal),
+      ],
+      [
+        'a goal has an unknown category',
+        (save: SaveData) =>
+          save.goals.push({
+            ...sampleGoal(),
+            category: 'Fun',
+          } as unknown as Goal),
+      ],
+      [
+        'a goal has an unknown status',
+        (save: SaveData) =>
+          save.goals.push({
+            ...sampleGoal(),
+            status: 'paused',
+          } as unknown as Goal),
+      ],
+      [
+        'a goal has negative progress',
+        (save: SaveData) => save.goals.push({ ...sampleGoal(), progress: -1 }),
+      ],
+      [
+        "a goal's Wonder hangs off the grid edge",
+        (save: SaveData) => save.goals.push({ ...sampleGoal(), row: 11 }),
+      ],
+      [
+        'a task has a numeric goalId',
+        (save: SaveData) =>
+          save.tasks.push({
+            ...saveWithDueDate(null).tasks[0],
+            goalId: 5,
+          } as unknown as Task),
+      ],
+      [
+        'an archived season has no goals list',
+        (save: SaveData) =>
+          save.seasons.archive.push({
+            ...archivedSeason(),
+            goals: undefined,
+          } as unknown as ArchivedSeason),
+      ],
+    ])('rejects a current-version save where %s', (_label, damage) => {
       const save = newGame();
       damage(save);
       expect(parseSave(JSON.stringify(save))).toBeNull();
     });
 
     it.each([
-      ['has no name', (season: ArchivedSeason) => delete (season as Partial<ArchivedSeason>).name],
-      ['has an invalid city', (season: ArchivedSeason) => season.city.buildings.push({ type: 'school', row: 2, col: 2 })],
-      ['has no population', (season: ArchivedSeason) => delete (season.stats as Partial<SeasonStats>).population],
-      ['misses a category count', (season: ArchivedSeason) => delete (season.stats.tasksCompleted as Partial<TasksPerCategory>).Social],
+      [
+        'has no name',
+        (season: ArchivedSeason) =>
+          delete (season as Partial<ArchivedSeason>).name,
+      ],
+      [
+        'has an invalid city',
+        (season: ArchivedSeason) =>
+          season.city.buildings.push({ type: 'school', row: 2, col: 2 }),
+      ],
+      [
+        'has no population',
+        (season: ArchivedSeason) =>
+          delete (season.stats as Partial<SeasonStats>).population,
+      ],
+      [
+        'misses a category count',
+        (season: ArchivedSeason) =>
+          delete (season.stats.tasksCompleted as Partial<TasksPerCategory>)
+            .Social,
+      ],
     ])('rejects an archived season that %s', (_label, damage) => {
       const save = newGame();
       const season = archivedSeason();

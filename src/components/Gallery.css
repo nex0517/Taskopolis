@@ -47,6 +47,12 @@
 }
 
 .season-card-dates,
+.season-card-wonders {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
 .season-card-population {
   margin: 0;
   font-size: 0.85rem;

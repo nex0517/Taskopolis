@@ -1,5 +1,5 @@
 import type { TaskDraft } from '../game/tasks';
-import type { Task, TaskCategory } from '../game/types';
+import type { Goal, Task, TaskCategory } from '../game/types';
 import type { CoinPop } from '../useJuice';
 import FilterBar, { type StatusFilter } from './FilterBar';
 import TaskForm from './TaskForm';
@@ -7,6 +7,7 @@ import TaskList from './TaskList';
 
 interface TaskPanelProps {
   tasks: Task[];
+  goals: Goal[];
   editing: Task | null;
   category: TaskCategory | 'all';
   status: StatusFilter;
@@ -24,6 +25,7 @@ interface TaskPanelProps {
 /** The left column: add/edit form, filters and the task list. */
 function TaskPanel({
   tasks,
+  goals,
   editing,
   category,
   status,
@@ -43,6 +45,7 @@ function TaskPanel({
       <TaskForm
         key={editing?.id ?? 'new'}
         editing={editing}
+        goals={goals}
         onSubmit={onSubmit}
         onCancelEdit={onCancelEdit}
       />
@@ -54,6 +57,7 @@ function TaskPanel({
       />
       <TaskList
         tasks={tasks}
+        goals={goals}
         onToggle={onToggle}
         onEdit={onEdit}
         onDelete={onDelete}

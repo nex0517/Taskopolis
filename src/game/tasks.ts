@@ -9,6 +9,8 @@ export interface TaskDraft {
   category: TaskCategory;
   size: TaskSize;
   dueDate: string | null;
+  /** An active goal of the same category to count towards, or null. */
+  goalId: string | null;
 }
 
 /** Append a new task built from a draft. `now` is injectable for tests. */
@@ -25,11 +27,12 @@ export function addTask(
     dueDate: draft.dueDate,
     createdAt: now.toISOString(),
     completedAt: null,
+    goalId: draft.goalId,
   };
   return [...tasks, task];
 }
 
-/** Apply edits to one task (title/category/size/dueDate only). */
+/** Apply edits to one task (title/category/size/dueDate/goalId only). */
 export function updateTask(
   tasks: Task[],
   id: string,
@@ -38,7 +41,7 @@ export function updateTask(
   return tasks.map((task) => {
     if (task.id !== id) return task;
     if (task.completedAt !== null) {
-      // Coins were already paid for this category and size.
+      // Coins (and goal progress) were already paid for this category, size and goal.
       return {
         ...task,
         title: changes.title.trim(),

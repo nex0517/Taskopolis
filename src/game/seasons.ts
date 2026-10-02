@@ -2,6 +2,7 @@
 // Pure functions only — data in, new data out.
 
 import { buildingAt, cityStats } from './city';
+import { activeGoals } from './wonders';
 import type {
   ArchivedSeason,
   CityData,
@@ -46,7 +47,9 @@ export function seasonStats(
 /**
  * Archive the current season and start the next one.
  * The keepsake (if it really is in the city) is the only building carried
- * over, standing on its old tile for free. Coins and tasks are untouched.
+ * over, standing on its old tile for free. Active goals keep their Wonders
+ * on the same tiles; finished and abandoned ones stay in the archive only.
+ * Coins and tasks are untouched.
  */
 export function endSeason(
   save: SaveData,
@@ -64,10 +67,12 @@ export function endSeason(
     endedAt,
     city: { buildings: [...save.city.buildings] },
     stats: seasonStats(save.tasks, save.city, current.startedAt, endedAt),
+    goals: [...save.goals],
   };
   return {
     ...save,
     city: { buildings: kept ? [kept] : [] },
+    goals: activeGoals(save.goals),
     seasons: {
       current: { number: current.number + 1, startedAt: endedAt },
       archive: [...archive, archived],

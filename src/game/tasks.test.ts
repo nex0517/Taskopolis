@@ -14,6 +14,7 @@ const draft: TaskDraft = {
   category: 'Study',
   size: 'M',
   dueDate: '2026-10-05',
+  goalId: null,
 };
 
 const now = new Date('2026-10-01T12:00:00Z');
@@ -27,6 +28,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     dueDate: null,
     createdAt: '2026-09-30T00:00:00.000Z',
     completedAt: null,
+    goalId: null,
     ...overrides,
   };
 }
@@ -81,6 +83,7 @@ describe('updateTask', () => {
       category: 'Social',
       size: 'L',
       dueDate: '2026-12-01',
+      goalId: null,
     });
     expect(tasks[0]).toMatchObject({
       title: 'New title',
@@ -103,6 +106,7 @@ describe('updateTask', () => {
       category: 'Social',
       size: 'L',
       dueDate: '2026-12-01',
+      goalId: null,
     });
     expect(tasks[0]).toMatchObject({
       title: 'Updated title',
@@ -113,9 +117,38 @@ describe('updateTask', () => {
   });
 });
 
+describe('goal links', () => {
+  it('stores the goal a new task is linked to', () => {
+    const tasks = addTask([], { ...draft, goalId: 'goal-1' }, now);
+    expect(tasks[0].goalId).toBe('goal-1');
+  });
+
+  it('can link and unlink an open task', () => {
+    const linked = updateTask([makeTask()], 'task-1', {
+      ...draft,
+      goalId: 'goal-1',
+    });
+    expect(linked[0].goalId).toBe('goal-1');
+    const unlinked = updateTask(linked, 'task-1', { ...draft, goalId: null });
+    expect(unlinked[0].goalId).toBeNull();
+  });
+
+  it('keeps the link of a completed task, like its category and size', () => {
+    const done = makeTask({
+      goalId: 'goal-1',
+      completedAt: '2026-10-01T00:00:00.000Z',
+    });
+    const tasks = updateTask([done], 'task-1', { ...draft, goalId: null });
+    expect(tasks[0].goalId).toBe('goal-1');
+  });
+});
+
 describe('removeTask', () => {
   it('deletes the task with the given id', () => {
-    const tasks = removeTask([makeTask(), makeTask({ id: 'task-2' })], 'task-1');
+    const tasks = removeTask(
+      [makeTask(), makeTask({ id: 'task-2' })],
+      'task-1',
+    );
     expect(tasks).toHaveLength(1);
     expect(tasks[0].id).toBe('task-2');
   });

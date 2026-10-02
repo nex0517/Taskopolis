@@ -1,11 +1,12 @@
 // Building, checking, and (de)serializing the save object.
 // Pure functions only — the localStorage calls live in src/storage.ts.
 
-import { GRID_SIZE, SAVE_VERSION } from './config';
+import { GRID_SIZE, SAVE_VERSION, WONDER_SIZE } from './config';
 import { migrate, type CoreSave } from './migrate';
 import type {
   ArchivedSeason,
   CityData,
+  Goal,
   Keepsake,
   PlacedBuilding,
   SaveData,
@@ -13,7 +14,7 @@ import type {
   Task,
   Wallet,
 } from './types';
-import { BUILDING_TYPES, CATEGORIES } from './types';
+import { BUILDING_TYPES, CATEGORIES, GOAL_STATUSES } from './types';
 
 /** A brand-new save: no tasks, empty wallet, empty city, season 1 starting now. */
 export function newGame(now: Date = new Date()): SaveData {
@@ -85,12 +86,41 @@ function isCoreSave(data: unknown): data is CoreSave {
   );
 }
 
-/** The fields added in version 2. Checked after migrate() has run. */
+/** The fields added in versions 2 and 3. Checked after migrate() has run. */
 function hasCurrentFields(save: SaveData): boolean {
   return (
     isSeasons(save.seasons) &&
-    Array.isArray(save.goals) &&
-    (save.keepsake === null || isKeepsake(save.keepsake))
+    isGoalList(save.goals) &&
+    (save.keepsake === null || isKeepsake(save.keepsake)) &&
+    save.tasks.every(
+      (task) => task.goalId === null || typeof task.goalId === 'string',
+    )
+  );
+}
+
+function isGoalList(goals: unknown): goals is Goal[] {
+  return Array.isArray(goals) && goals.every(isGoal);
+}
+
+function isGoal(goal: unknown): goal is Goal {
+  if (typeof goal !== 'object' || goal === null) return false;
+  const g = goal as Goal;
+  return (
+    typeof g.id === 'string' &&
+    typeof g.title === 'string' &&
+    CATEGORIES.includes(g.category) &&
+    Number.isInteger(g.row) &&
+    Number.isInteger(g.col) &&
+    g.row >= 0 &&
+    g.col >= 0 &&
+    // The whole 2x2 footprint must fit on the grid.
+    g.row + WONDER_SIZE <= GRID_SIZE &&
+    g.col + WONDER_SIZE <= GRID_SIZE &&
+    typeof g.progress === 'number' &&
+    g.progress >= 0 &&
+    GOAL_STATUSES.includes(g.status) &&
+    typeof g.createdAt === 'string' &&
+    (g.closedAt === null || typeof g.closedAt === 'string')
   );
 }
 
@@ -127,6 +157,7 @@ function isArchivedSeason(season: unknown): season is ArchivedSeason {
     typeof s.startedAt === 'string' &&
     typeof s.endedAt === 'string' &&
     isCity(s.city) &&
+    isGoalList(s.goals) &&
     typeof s.stats === 'object' &&
     s.stats !== null &&
     typeof s.stats.population === 'number' &&

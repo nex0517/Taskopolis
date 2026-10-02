@@ -5,9 +5,11 @@ import {
 } from './config';
 import { canAffordBuilding, payForBuilding } from './economy';
 import { getBuilding } from './buildings';
+import { wonderAt } from './wonders';
 import type {
   BuildingType,
   CityData,
+  Goal,
   PlacedBuilding,
   TaskCategory,
   Wallet,
@@ -45,6 +47,7 @@ export function placeBuilding(
   type: BuildingType,
   row: number,
   col: number,
+  goals: Goal[] = [],
 ): PlaceResult {
   if (
     !Number.isInteger(row) ||
@@ -56,7 +59,10 @@ export function placeBuilding(
   ) {
     return { ok: false, reason: 'out-of-bounds' };
   }
-  if (buildingAt(city, row, col)) return { ok: false, reason: 'occupied' };
+  // Wonders are not in city.buildings, but their 2x2 footprints are taken too.
+  if (buildingAt(city, row, col) || wonderAt(goals, row, col)) {
+    return { ok: false, reason: 'occupied' };
+  }
   const def = getBuilding(type);
   if (!canAffordBuilding(wallet, def)) {
     return { ok: false, reason: 'unaffordable' };
@@ -78,8 +84,9 @@ export interface CityStats {
 }
 
 export function cityStats(city: CityData): CityStats {
-  const homes = city.buildings.filter((building) => building.type === 'home')
-    .length;
+  const homes = city.buildings.filter(
+    (building) => building.type === 'home',
+  ).length;
   const serviceBuildings = city.buildings.length - homes;
   const housing = homes * PEOPLE_PER_HOME;
   const supported = serviceBuildings * PEOPLE_PER_SERVICE_BUILDING;
