@@ -66,7 +66,7 @@ function CityGrid({
           const place = `row ${rowLabel}, column ${colLabel}`;
           return (
             <button
-              key={`${row}-${col}`}
+              key={isWaking ? `${row}-${col}-wake-${waking.key}` : `${row}-${col}`}
               type="button"
               className={`city-tile ${className}${quiet ? ' city-tile-dormant' : ''}${isWaking ? ' city-tile-waking' : ''}${isNew ? ' city-tile-new' : ''}`}
               title={
