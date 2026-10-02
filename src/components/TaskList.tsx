@@ -1,11 +1,9 @@
 import type { Task } from '../game/types';
-import { isOverdue } from '../game/neglect';
 import type { CoinPop } from '../useJuice';
 import './TaskList.css';
 
 interface TaskListProps {
   tasks: Task[];
-  today: string;
   coinPop: CoinPop | null;
   onToggle: (task: Task) => void;
   onEdit: (task: Task) => void;
@@ -15,7 +13,6 @@ interface TaskListProps {
 
 function TaskList({
   tasks,
-  today,
   coinPop,
   onToggle,
   onEdit,
@@ -29,13 +26,9 @@ function TaskList({
   return (
     <ul className="task-list">
       {tasks.map((task) => {
-        const overdue = isOverdue(task, today);
         const rowClass = task.completedAt ? 'task-row done' : 'task-row';
         return (
-          <li
-            key={task.id}
-            className={`${rowClass}${overdue ? ' task-overdue' : ''}`}
-          >
+          <li key={task.id} className={rowClass}>
             {coinPop?.taskId === task.id && (
               <span
                 key={coinPop.key}
@@ -58,12 +51,7 @@ function TaskList({
               <span className="task-category">{task.category}</span>
               <span className="task-size">{task.size}</span>
               {task.dueDate && (
-                <span className="task-due">
-                  due {task.dueDate}{' '}
-                  {overdue && (
-                    <span className="task-overdue-label">overdue</span>
-                  )}
-                </span>
+                <span className="task-due">due {task.dueDate}</span>
               )}
             </span>
             <span className="task-actions">

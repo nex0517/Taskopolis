@@ -1,17 +1,19 @@
-import { GRID_SIZE } from '../game/config';
+import { DORMANT_AFTER_DAYS, GRID_SIZE } from '../game/config';
 import { buildingAt } from '../game/city';
 import { getBuilding } from '../game/buildings';
-import { DISTRICT_PROBLEMS } from '../game/neglect';
+import { isBuildingDormant } from '../game/dormant';
 import type { CityData, TaskCategory } from '../game/types';
-import type { NewBuilding } from '../useJuice';
+import type { NewBuilding, Waking } from '../useJuice';
 import './CityGrid.css';
 
 interface CityGridProps {
   city: CityData;
-  neglected: TaskCategory[];
+  dormant: TaskCategory[];
   newBuilding: NewBuilding | null;
+  waking: Waking | null;
   onTileClick: (row: number, col: number) => void;
   onBuildEnd: () => void;
+  onWakeEnd: () => void;
 }
 
 function districtClass(category: TaskCategory): string {
@@ -20,10 +22,12 @@ function districtClass(category: TaskCategory): string {
 
 function CityGrid({
   city,
-  neglected,
+  dormant,
   newBuilding,
+  waking,
   onTileClick,
   onBuildEnd,
+  onWakeEnd,
 }: CityGridProps) {
   return (
     <div
@@ -52,44 +56,39 @@ function CityGrid({
             definition.category === null
               ? 'home'
               : districtClass(definition.category);
-          const problem =
-            definition.category !== null &&
-            neglected.includes(definition.category)
-              ? DISTRICT_PROBLEMS[definition.category]
-              : null;
-          const title = problem
-            ? `${definition.name} — ${problem}: a ${definition.category} task is overdue`
-            : definition.name;
-          const tileClass = problem ? ' city-tile-neglected' : '';
+          const quiet = isBuildingDormant(definition, dormant);
+          const isWaking =
+            waking !== null && definition.category === waking.category;
           const isNew =
             newBuilding !== null &&
             newBuilding.row === row &&
             newBuilding.col === col;
+          const place = `row ${rowLabel}, column ${colLabel}`;
           return (
             <button
               key={`${row}-${col}`}
               type="button"
-              className={`city-tile ${className}${tileClass}${isNew ? ' city-tile-new' : ''}`}
-              title={title}
+              className={`city-tile ${className}${quiet ? ' city-tile-dormant' : ''}${isWaking ? ' city-tile-waking' : ''}${isNew ? ' city-tile-new' : ''}`}
+              title={
+                quiet
+                  ? `${definition.name} — quiet: no ${definition.category} task done in ${DORMANT_AFTER_DAYS} days`
+                  : definition.name
+              }
               aria-label={
-                problem
-                  ? `${definition.name}, row ${rowLabel}, column ${colLabel}, needs attention: ${problem}`
-                  : `${definition.name}, row ${rowLabel}, column ${colLabel}`
+                quiet
+                  ? `${definition.name}, ${place}, quiet`
+                  : `${definition.name}, ${place}`
               }
               onClick={() => onTileClick(row, col)}
               onAnimationEnd={(event) => {
                 if (event.animationName === 'construct') onBuildEnd();
+                if (event.animationName === 'wake-up') onWakeEnd();
               }}
             >
               <span className="city-tile-emoji" aria-hidden="true">
                 {definition.emoji}
               </span>
               <span className="city-tile-name">{definition.name}</span>
-              {problem && (
-                <span className="city-tile-warning" aria-hidden="true">
-                  ⚠️
-                </span>
-              )}
             </button>
           );
         }),

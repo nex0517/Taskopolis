@@ -30,6 +30,7 @@ The golden rule: **the game rules live apart from the UI.**
 - Every balance number (rewards, costs, caps) lives in one file,
   `src/game/config.ts`, with a comment on each one. If you want to tune the
   game, that's the only file to touch.
+- The game rules are written out in plain English in `docs/SPEC.md`.
 - Data is saved in the browser's `localStorage` — there is no backend and
   no accounts, so nothing ever leaves your machine.
 
@@ -52,7 +53,7 @@ Taskopolis/
 │   │   ├── economy.ts    # rewards, wallet updates, affordability, spending
 │   │   ├── buildings.ts  # building catalogue and costs
 │   │   ├── city.ts       # city placement and population rules
-│   │   ├── neglect.ts    # overdue tasks and district problems
+│   │   ├── dormant.ts    # quiet (dormant) districts and wake-up messages
 │   │   ├── save.ts       # build/check/serialize the save object
 │   │   ├── migrate.ts    # upgrades old saves (stub for now)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
@@ -65,7 +66,7 @@ Taskopolis/
 │   │   ├── ShopPanel.tsx    # building catalogue and selection
 │   │   └── CityGrid.tsx     # interactive city tiles
 │   ├── storage.ts        # the ONLY file that touches localStorage
-│   ├── useToday.ts       # local date refreshed once a minute
+│   ├── useNow.ts         # current time, refreshed once a minute
 │   ├── useJuice.ts       # one-shot animation triggers
 │   ├── App.tsx           # top-level page: owns the save, wires components
 │   ├── App.css           # styles for App

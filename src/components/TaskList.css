@@ -55,12 +55,6 @@
   opacity: 0.55;
 }
 
-.task-overdue-label {
-  color: #b42318;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
 .task-check {
   display: flex;
   align-items: center;
