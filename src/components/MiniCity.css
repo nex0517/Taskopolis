@@ -1,0 +1,23 @@
+.mini-city {
+  display: grid;
+  gap: 1px;
+  padding: 3px;
+  border: 1px solid #dedee8;
+  border-radius: 6px;
+  background: #e7e9ed;
+}
+
+.mini-tile {
+  display: flex;
+  aspect-ratio: 1;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 1px;
+  font-size: 0.55rem;
+  line-height: 1;
+}
+
+.mini-tile-empty {
+  background: #fafbfc;
+}

@@ -4,6 +4,7 @@ import { getBuilding } from '../game/buildings';
 import { isBuildingDormant } from '../game/dormant';
 import type { CityData, TaskCategory } from '../game/types';
 import type { NewBuilding, Waking } from '../useJuice';
+import { tileClass } from './tileClass';
 import './CityGrid.css';
 
 interface CityGridProps {
@@ -14,10 +15,6 @@ interface CityGridProps {
   onTileClick: (row: number, col: number) => void;
   onBuildEnd: () => void;
   onWakeEnd: () => void;
-}
-
-function districtClass(category: TaskCategory): string {
-  return `district-${category.toLowerCase().replace(/[^a-z]+/g, '-')}`;
 }
 
 function CityGrid({
@@ -52,10 +49,7 @@ function CityGrid({
             );
           }
           const definition = getBuilding(building.type);
-          const className =
-            definition.category === null
-              ? 'home'
-              : districtClass(definition.category);
+          const className = tileClass(definition);
           const quiet = isBuildingDormant(definition, dormant);
           const isWaking =
             waking !== null && definition.category === waking.category;

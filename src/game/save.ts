@@ -6,6 +6,7 @@ import { migrate, type CoreSave } from './migrate';
 import type {
   ArchivedSeason,
   CityData,
+  Keepsake,
   PlacedBuilding,
   SaveData,
   SeasonsData,
@@ -89,7 +90,14 @@ function hasCurrentFields(save: SaveData): boolean {
   return (
     isSeasons(save.seasons) &&
     Array.isArray(save.goals) &&
-    (save.keepsake === null || typeof save.keepsake === 'object')
+    (save.keepsake === null || isKeepsake(save.keepsake))
+  );
+}
+
+function isKeepsake(keepsake: unknown): keepsake is Keepsake {
+  return (
+    isPlacedBuilding(keepsake) &&
+    isSeasonNumber((keepsake as Keepsake).fromSeason)
   );
 }
 

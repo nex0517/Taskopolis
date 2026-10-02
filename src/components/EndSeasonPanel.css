@@ -1,0 +1,43 @@
+.season-panel {
+  margin-bottom: 12px;
+}
+
+.season-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.season-confirm {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1px solid #c9c6e8;
+  border-radius: 8px;
+  background: #f8f7ff;
+}
+
+.season-confirm p {
+  margin: 0;
+}
+
+.season-empty {
+  color: #6b6b78;
+  font-size: 0.9rem;
+}
+
+.season-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.season-end {
+  border-color: #6247dc;
+  background: #eae6ff;
+  font-weight: 600;
+}
