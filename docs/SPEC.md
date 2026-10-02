@@ -96,3 +96,41 @@ A season is a chapter of the city. Ending one is a celebration, not a reset.
   small read-only view of the city, and tasks completed per category.
 - `keepsake` in the save records the most recent kept building and which
   season it came from.
+
+### Wonders (Milestone 9)
+A Wonder is a long-term goal shown in the city as a giant 2×2 building. It
+costs no coins: it is built by finishing the tasks linked to it.
+
+- Each category has one Wonder type, in `config.ts`: Study = Grand
+  Observatory, Health = Stadium, Chores = Hydro Dam, Money/Admin = Stock
+  Exchange, Social = Opera House, Projects = Space Port.
+- Creating a goal takes a title, a category and an empty 2×2 spot (the player
+  clicks the top-left tile). The spot is refused if any of its four tiles is
+  taken by a building or another Wonder, or falls off the grid edge. There can
+  be several goals at once, even in the same category.
+- Linking: when adding or editing a task it can be linked to an **active**
+  goal of the same category. Changing the task's category clears the link. A
+  completed task's link is locked, like its category and size.
+- Progress: completing a linked task pays its normal coins **and** adds
+  progress equal to those coins. Un-completing it takes the same progress
+  back (never below 0). Deleting a completed task keeps its progress, just as
+  it keeps its coins. Progress is stored on the goal.
+- Stages: four visible stages — foundation, frame, walls, finished — reached
+  at `WONDER_STAGE_THRESHOLDS` (default 0, 10, 25, 40). The last number is
+  the total, `WONDER_TOTAL` (default 40). Progress can go past the total; the
+  stage simply stays "finished".
+- Finishing and abandoning: once progress reaches the total the goal can be
+  marked **finished**. An active goal can be **abandoned** at any time: its
+  Wonder stays at its current stage, labelled "unfinished", and nothing is
+  removed. Finished and abandoned goals no longer gain or lose progress, and
+  tasks can no longer be linked to them.
+- Seasons: when a season ends, every goal is archived with it (so the gallery
+  city shows its Wonders), and the **active** goals — Wonders included, on
+  the same tiles — carry over to the new season. Finished and abandoned
+  Wonders stay in the gallery only.
+- Dormancy: a dormant category dims its Wonder like the rest of its district.
+- Wonders do not count towards population, and the keepsake can only be an
+  ordinary building.
+- Save format v3: tasks gain `goalId` (`null` = no link) and archived seasons
+  gain `goals`. Upgrading a v2 save fills these in with `null` / `[]`; nothing
+  else changes.

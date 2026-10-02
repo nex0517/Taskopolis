@@ -77,6 +77,12 @@
   background: #eceaff;
 }
 
+.task-goal {
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #fff1c7;
+}
+
 .task-actions {
   display: flex;
   gap: 6px;

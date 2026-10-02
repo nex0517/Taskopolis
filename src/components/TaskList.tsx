@@ -1,9 +1,10 @@
-import type { Task } from '../game/types';
+import type { Goal, Task } from '../game/types';
 import type { CoinPop } from '../useJuice';
 import './TaskList.css';
 
 interface TaskListProps {
   tasks: Task[];
+  goals: Goal[];
   coinPop: CoinPop | null;
   onToggle: (task: Task) => void;
   onEdit: (task: Task) => void;
@@ -13,6 +14,7 @@ interface TaskListProps {
 
 function TaskList({
   tasks,
+  goals,
   coinPop,
   onToggle,
   onEdit,
@@ -27,6 +29,7 @@ function TaskList({
     <ul className="task-list">
       {tasks.map((task) => {
         const rowClass = task.completedAt ? 'task-row done' : 'task-row';
+        const goal = goals.find((g) => g.id === task.goalId);
         return (
           <li key={task.id} className={rowClass}>
             {coinPop?.taskId === task.id && (
@@ -52,6 +55,11 @@ function TaskList({
               <span className="task-size">{task.size}</span>
               {task.dueDate && (
                 <span className="task-due">due {task.dueDate}</span>
+              )}
+              {goal && (
+                <span className="task-goal" title="Counts towards this goal">
+                  → {goal.title}
+                </span>
               )}
             </span>
             <span className="task-actions">

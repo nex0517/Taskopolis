@@ -29,6 +29,8 @@ export interface Task {
   createdAt: string;
   /** ISO timestamp of completion, or null while the task is open. */
   completedAt: string | null;
+  /** The goal this task counts towards (see Goal), or null for none. */
+  goalId: string | null;
 }
 
 /** One coin balance per category (e.g. "Study coins"). */
@@ -97,6 +99,8 @@ export interface ArchivedSeason {
   /** A copy of the city as it was when the season ended. */
   city: CityData;
   stats: SeasonStats;
+  /** Every goal as it was when the season ended, so its Wonders can be shown. */
+  goals: Goal[];
 }
 
 export interface SeasonsData {
@@ -104,8 +108,25 @@ export interface SeasonsData {
   archive: ArchivedSeason[];
 }
 
-/** A Wonder goal. Milestone 9 decides its fields; until then the list stays empty. */
-export type Goal = Record<string, never>;
+export const GOAL_STATUSES = ['active', 'finished', 'abandoned'] as const;
+
+export type GoalStatus = (typeof GOAL_STATUSES)[number];
+
+/** A long-term goal, shown in the city as a giant 2x2 Wonder. */
+export interface Goal {
+  id: string;
+  title: string;
+  category: TaskCategory;
+  /** Top-left tile of the Wonder's 2x2 footprint. */
+  row: number;
+  col: number;
+  /** Coin value of the linked tasks completed so far (WONDER_TOTAL finishes it). */
+  progress: number;
+  status: GoalStatus;
+  createdAt: string;
+  /** ISO timestamp of finishing or abandoning, or null while active. */
+  closedAt: string | null;
+}
 
 /** The one building kept when a season ended, and which season it came from. */
 export interface Keepsake extends PlacedBuilding {

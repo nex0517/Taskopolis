@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { SAVE_VERSION } from './config';
-import { earliestCreatedAt, migrate, type SaveV1 } from './migrate';
+import {
+  earliestCreatedAt,
+  migrate,
+  type SaveV1,
+  type SaveV2,
+} from './migrate';
 import { parseSave, serializeSave } from './save';
 
 const now = new Date('2026-10-02T12:00:00.000Z');
@@ -57,13 +62,16 @@ function v1(): SaveV1 {
   return JSON.parse(V1_EXPORT) as SaveV1;
 }
 
-describe('migrate v1 -> v2', () => {
+describe('migrate v1 -> v2 -> v3', () => {
   it('keeps every task, coin and building exactly as they were', () => {
     const before = v1();
     const after = migrate(before, now);
     expect(after).not.toBeNull();
-    expect(after?.saveVersion).toBe(2);
-    expect(after?.tasks).toEqual(before.tasks);
+    expect(after?.saveVersion).toBe(SAVE_VERSION);
+    // The only change to a task is the new "no goal" link.
+    expect(after?.tasks).toEqual(
+      before.tasks.map((task) => ({ ...task, goalId: null })),
+    );
     expect(after?.wallet).toEqual(before.wallet);
     expect(after?.city).toEqual(before.city);
   });
@@ -98,6 +106,68 @@ describe('migrate v1 -> v2', () => {
 
   it('is current after migrating', () => {
     expect(migrate(v1(), now)?.saveVersion).toBe(SAVE_VERSION);
+  });
+});
+
+describe('migrate v2 -> v3', () => {
+  /** A version-2 save as Milestone 8 wrote it: one archived season, no goal links. */
+  function v2(): SaveV2 {
+    const base = v1();
+    return {
+      ...base,
+      saveVersion: 2,
+      seasons: {
+        current: { number: 2, startedAt: '2026-09-30T00:00:00.000Z' },
+        archive: [
+          {
+            number: 1,
+            name: 'First try',
+            startedAt: '2026-09-15T06:00:00.000Z',
+            endedAt: '2026-09-30T00:00:00.000Z',
+            city: { buildings: [{ type: 'park', row: 1, col: 1 }] },
+            stats: {
+              tasksCompleted: {
+                Study: 1,
+                Health: 0,
+                Chores: 0,
+                'Money/Admin': 0,
+                Social: 0,
+                Projects: 0,
+              },
+              population: 0,
+            },
+          },
+        ],
+      },
+      goals: [],
+      keepsake: { type: 'park', row: 1, col: 1, fromSeason: 1 },
+    };
+  }
+
+  it('adds an empty goal link to every task and an empty goal list to every archived season', () => {
+    const before = v2();
+    const after = migrate(before, now);
+    expect(after?.saveVersion).toBe(SAVE_VERSION);
+    expect(after?.tasks).toEqual(
+      before.tasks.map((task) => ({ ...task, goalId: null })),
+    );
+    expect(after?.seasons.archive).toEqual([
+      { ...before.seasons.archive[0], goals: [] },
+    ]);
+    // Nothing else moves.
+    expect(after?.seasons.current).toEqual(before.seasons.current);
+    expect(after?.wallet).toEqual(before.wallet);
+    expect(after?.city).toEqual(before.city);
+    expect(after?.keepsake).toEqual(before.keepsake);
+    expect(after?.goals).toEqual([]);
+  });
+
+  it('loads through parseSave and round-trips afterwards', () => {
+    const parsed = parseSave(JSON.stringify(v2()), now);
+    expect(parsed?.migrated).toBe(true);
+    const again = parseSave(serializeSave(parsed!.save), new Date(0));
+    expect(again?.migrated).toBe(false);
+    expect(again?.save).toEqual(parsed?.save);
   });
 });
 

@@ -21,3 +21,8 @@
 .mini-tile-empty {
   background: #fafbfc;
 }
+
+.mini-wonder {
+  border: 1px solid #7b61ff;
+  font-size: 1rem;
+}

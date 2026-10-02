@@ -59,8 +59,9 @@ Taskopolis/
 │   │   ├── city.ts       # city placement and population rules
 │   │   ├── dormant.ts    # quiet (dormant) districts and wake-up messages
 │   │   ├── seasons.ts    # ending a season, season stats, renaming
+│   │   ├── wonders.ts    # goals and their 2x2 Wonders: placement, progress, stages
 │   │   ├── save.ts       # build/check/serialize the save object
-│   │   ├── migrate.ts    # upgrades old saves (v1 → v2: adds seasons)
+│   │   ├── migrate.ts    # upgrades old saves (v1 → v2 → v3)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
 │   ├── components/       # React UI (each .tsx has a matching .css)
 │   │   ├── UpdateBanner.tsx # "Update available" when a new version is online
@@ -70,7 +71,8 @@ Taskopolis/
 │   │   ├── SaveControls.tsx # export/import buttons
 │   │   ├── WalletPanel.tsx  # category coin balances
 │   │   ├── ShopPanel.tsx    # building catalogue and selection
-│   │   ├── CityGrid.tsx     # interactive city tiles
+│   │   ├── CityGrid.tsx     # interactive city tiles, Wonders span 2x2
+│   │   ├── GoalPanel.tsx    # goal list, finish/abandon, "new goal" form
 │   │   ├── EndSeasonPanel.tsx # season line + the End season confirm step
 │   │   ├── Gallery.tsx      # past seasons as cards, with rename
 │   │   └── MiniCity.tsx     # small read-only city used by the gallery

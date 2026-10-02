@@ -1,11 +1,13 @@
 // All game balance numbers live in this file, each with a one-line
 // comment explaining what it controls. No magic numbers anywhere else.
 
+import type { TaskCategory } from './types';
+
 /** The city grid starts as a square of this many tiles per side. */
 export const GRID_SIZE = 12;
 
 /** Current save format version — bump when the save shape changes. */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** Coins paid when a small task is completed. */
 export const SMALL_TASK_REWARD = 1;
@@ -42,3 +44,24 @@ export const PEOPLE_PER_SERVICE_BUILDING = 8;
 
 /** Days without a completed task before a district goes quiet. */
 export const DORMANT_AFTER_DAYS = 7;
+
+/** A Wonder is a square of this many tiles per side. */
+export const WONDER_SIZE = 2;
+
+/** Progress needed to show each Wonder stage, in order:
+ *  foundation, frame, walls, finished. The last number is the total. */
+export const WONDER_STAGE_THRESHOLDS = [0, 10, 25, 40] as const;
+
+/** Progress that finishes a Wonder (the last stage threshold). */
+export const WONDER_TOTAL: number =
+  WONDER_STAGE_THRESHOLDS[WONDER_STAGE_THRESHOLDS.length - 1];
+
+/** The one Wonder each category can build. */
+export const WONDERS: Record<TaskCategory, { name: string; emoji: string }> = {
+  Study: { name: 'Grand Observatory', emoji: '🔭' },
+  Health: { name: 'Stadium', emoji: '🏟️' },
+  Chores: { name: 'Hydro Dam', emoji: '🌊' },
+  'Money/Admin': { name: 'Stock Exchange', emoji: '🏛️' },
+  Social: { name: 'Opera House', emoji: '🎭' },
+  Projects: { name: 'Space Port', emoji: '🚀' },
+};

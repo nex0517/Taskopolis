@@ -7,7 +7,7 @@ import {
   renameSeason,
   seasonStats,
 } from './seasons';
-import type { SaveData, Task } from './types';
+import type { Goal, SaveData, Task } from './types';
 import { CATEGORIES } from './types';
 
 const started = new Date('2026-09-01T00:00:00.000Z');
@@ -26,6 +26,7 @@ function task(
     dueDate: null,
     createdAt: '2026-08-01T00:00:00.000Z',
     completedAt,
+    goalId: null,
   };
 }
 
@@ -68,6 +69,25 @@ describe('seasonStats', () => {
       Social: 0,
       Projects: 0,
     });
+  });
+
+  it('gives a task completed exactly at the end to the next season', () => {
+    const tasks = [task('edge', 'Study', ended.toISOString())];
+    const city = { buildings: [] };
+    const first = seasonStats(
+      tasks,
+      city,
+      started.toISOString(),
+      ended.toISOString(),
+    );
+    const next = seasonStats(
+      tasks,
+      city,
+      ended.toISOString(),
+      '2026-11-01T00:00:00.000Z',
+    );
+    expect(first.tasksCompleted.Study).toBe(0);
+    expect(next.tasksCompleted.Study).toBe(1);
   });
 
   it('records the population at the end', () => {
@@ -128,6 +148,46 @@ describe('endSeason', () => {
       number: 2,
       startedAt: ended.toISOString(),
     });
+  });
+
+  it('carries active goals over and archives every goal with the season', () => {
+    const base: Goal = {
+      id: 'active',
+      title: 'Thesis',
+      category: 'Study',
+      row: 6,
+      col: 6,
+      progress: 12,
+      status: 'active',
+      createdAt: '2026-09-02T00:00:00.000Z',
+      closedAt: null,
+    };
+    const save = livedInSave();
+    save.goals.push(
+      base,
+      {
+        ...base,
+        id: 'done',
+        row: 8,
+        progress: 40,
+        status: 'finished',
+        closedAt: 'x',
+      },
+      {
+        ...base,
+        id: 'given-up',
+        row: 10,
+        progress: 3,
+        status: 'abandoned',
+        closedAt: 'x',
+      },
+    );
+    const after = endSeason(save, null, ended);
+    // The archive remembers all three, exactly as they were.
+    expect(after.seasons.archive[0].goals).toEqual(save.goals);
+    expect(after.seasons.archive[0].goals).not.toBe(save.goals);
+    // Only the active one keeps standing in the new season, same tile, same progress.
+    expect(after.goals).toEqual([base]);
   });
 
   it('leaves coins and tasks exactly as they were', () => {

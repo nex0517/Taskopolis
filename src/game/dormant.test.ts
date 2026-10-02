@@ -28,6 +28,7 @@ function makeTask(overrides: Partial<Task> = {}): Task {
     dueDate: null,
     createdAt: daysAgo(30),
     completedAt: null,
+    goalId: null,
     ...overrides,
   };
 }
