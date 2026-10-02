@@ -78,3 +78,21 @@ No visible features. The save gains room for Seasons and Wonders.
   coin or building changes. Upgrading an already-current save changes nothing.
 - A save whose version the app has never heard of is treated like a corrupted
   one: backed up under the second localStorage key and a fresh game started.
+
+### Seasons (Milestone 8)
+A season is a chapter of the city. Ending one is a celebration, not a reset.
+
+- The current season has a number and a start time. A fresh game is season 1;
+  a migrated v1 save's existing city is season 1 too.
+- **End season** (with a confirm step) does, in order: archive the city as it
+  is, with stats (tasks completed per category *during* the season, and the
+  population at the end); let the player keep ONE building as a keepsake; then
+  start season N+1 with an empty city where only the keepsake stands, on its
+  old tile, for free. Coins and tasks are unchanged. If the city is empty there
+  is nothing to keep and the season still ends.
+- An archived season gets the default name "Season N" and can be renamed in
+  the gallery. Blank names are ignored.
+- The gallery shows every past season as a card: name, dates, population, a
+  small read-only view of the city, and tasks completed per category.
+- `keepsake` in the save records the most recent kept building and which
+  season it came from.

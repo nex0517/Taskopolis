@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 
-import FilterBar, { type StatusFilter } from './components/FilterBar';
-import SaveControls from './components/SaveControls';
+import AppHeader, { type View } from './components/AppHeader';
+import type { StatusFilter } from './components/FilterBar';
 import CityPanel from './components/CityPanel';
-import PopulationBar from './components/PopulationBar';
-import TaskForm from './components/TaskForm';
-import TaskList from './components/TaskList';
+import Gallery from './components/Gallery';
+import TaskPanel from './components/TaskPanel';
 import WalletPanel from './components/WalletPanel';
 import { payTaskReward, refundTaskReward, rewardForTask } from './game/economy';
 import { cityStats, hasDistrictBuilding, placeBuilding } from './game/city';
 import { WAKE_MESSAGES, dormantCategories, isDormant } from './game/dormant';
-import { parseSave, serializeSave } from './game/save';
+import { parseSave } from './game/save';
+import { endSeason, renameSeason } from './game/seasons';
 import {
   addTask,
   removeTask,
@@ -18,7 +18,14 @@ import {
   updateTask,
   type TaskDraft,
 } from './game/tasks';
-import type { BuildingType, SaveData, Task, TaskCategory } from './game/types';
+import type {
+  BuildingType,
+  PlacedBuilding,
+  SaveData,
+  Task,
+  TaskCategory,
+} from './game/types';
+import { downloadSave } from './saveFile';
 import { loadSave, writeSave } from './storage';
 import { useJuice } from './useJuice';
 import { useNow } from './useNow';
@@ -36,6 +43,7 @@ function App() {
     'all',
   );
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [view, setView] = useState<View>('city');
   const [notice, setNotice] = useState(
     loadResult.status === 'corrupted'
       ? 'Your save file was corrupted, so a fresh one was started. The old data was kept as a backup.'
@@ -113,14 +121,17 @@ function App() {
     }
   }
 
-  function handleExport() {
-    const blob = new Blob([serializeSave(save)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'taskopolis-save.json';
-    a.click();
-    URL.revokeObjectURL(url);
+  function handleEndSeason(keepsake: PlacedBuilding | null) {
+    const ended = endSeason(save, keepsake, new Date());
+    setSave(ended);
+    setSelectedBuilding(null);
+    setNotice(
+      `Season ${save.seasons.current.number} is in the gallery. Welcome to season ${ended.seasons.current.number}.`,
+    );
+  }
+
+  function handleRenameSeason(number: number, name: string) {
+    setSave({ ...save, seasons: renameSeason(save.seasons, number, name) });
   }
 
   function handleImport(fileText: string) {
@@ -149,14 +160,14 @@ function App() {
 
   return (
     <main className="app">
-      <header className="app-header">
-        <div>
-          <h1>Taskopolis</h1>
-          <p className="app-tagline">Complete real tasks. Build a city.</p>
-        </div>
-        <PopulationBar stats={stats} />
-        <SaveControls onExport={handleExport} onImport={handleImport} />
-      </header>
+      <AppHeader
+        stats={stats}
+        view={view}
+        galleryCount={save.seasons.archive.length}
+        onViewChange={setView}
+        onExport={() => downloadSave(save)}
+        onImport={handleImport}
+      />
 
       {notice && (
         <p className="notice" role="status">
@@ -164,48 +175,46 @@ function App() {
         </p>
       )}
 
-      <WalletPanel wallet={save.wallet} />
+      {view === 'gallery' ? (
+        <Gallery seasons={save.seasons} onRename={handleRenameSeason} />
+      ) : (
+        <>
+          <WalletPanel wallet={save.wallet} />
 
-      <div className="app-layout">
-        <section className="task-column" aria-label="Tasks">
-          {/* key forces a fresh form when switching between add and edit */}
-          <TaskForm
-            key={editingTask?.id ?? 'new'}
-            editing={editingTask}
-            onSubmit={handleSubmit}
-            onCancelEdit={() => setEditing(null)}
-          />
+          <div className="app-layout">
+            <TaskPanel
+              tasks={visibleTasks}
+              editing={editingTask}
+              category={categoryFilter}
+              status={statusFilter}
+              coinPop={juice.coinPop}
+              onSubmit={handleSubmit}
+              onCancelEdit={() => setEditing(null)}
+              onCategoryChange={setCategoryFilter}
+              onStatusChange={setStatusFilter}
+              onToggle={handleToggle}
+              onEdit={setEditing}
+              onDelete={handleDelete}
+              onCoinPopEnd={juice.clearCoinPop}
+            />
 
-          <FilterBar
-            category={categoryFilter}
-            status={statusFilter}
-            onCategoryChange={setCategoryFilter}
-            onStatusChange={setStatusFilter}
-          />
-
-          <TaskList
-            tasks={visibleTasks}
-            onToggle={handleToggle}
-            onEdit={setEditing}
-            onDelete={handleDelete}
-            coinPop={juice.coinPop}
-            onCoinPopEnd={juice.clearCoinPop}
-          />
-        </section>
-
-        <CityPanel
-          city={save.city}
-          wallet={save.wallet}
-          selected={selectedBuilding}
-          dormant={dormant}
-          newBuilding={juice.newBuilding}
-          waking={juice.waking}
-          onSelect={setSelectedBuilding}
-          onTileClick={handleTileClick}
-          onBuildEnd={juice.clearNewBuilding}
-          onWakeEnd={juice.clearWaking}
-        />
-      </div>
+            <CityPanel
+              city={save.city}
+              wallet={save.wallet}
+              season={save.seasons.current}
+              selected={selectedBuilding}
+              dormant={dormant}
+              newBuilding={juice.newBuilding}
+              waking={juice.waking}
+              onSelect={setSelectedBuilding}
+              onTileClick={handleTileClick}
+              onBuildEnd={juice.clearNewBuilding}
+              onWakeEnd={juice.clearWaking}
+              onEndSeason={handleEndSeason}
+            />
+          </div>
+        </>
+      )}
     </main>
   );
 }

@@ -107,8 +107,10 @@ export interface SeasonsData {
 /** A Wonder goal. Milestone 9 decides its fields; until then the list stays empty. */
 export type Goal = Record<string, never>;
 
-/** Something kept from a past season. A later milestone defines it; null for now. */
-export type Keepsake = Record<string, never>;
+/** The one building kept when a season ended, and which season it came from. */
+export interface Keepsake extends PlacedBuilding {
+  fromSeason: number;
+}
 
 /** Everything we persist — one object in localStorage (format version 2). */
 export interface SaveData {

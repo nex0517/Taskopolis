@@ -108,3 +108,15 @@
 - Also in this branch, as a separate first commit: the three small review findings from Milestone 6 (wake glow not armed when the district has no buildings, unreadable `completedAt` skipped, glow replays on a fast second wake).
 - `docs/SPEC.md` gets a "Save format v2" section under Sprint 2; the README's folder layout no longer calls `migrate.ts` a stub.
 - Run `npm test`, `npm run build` and `npm run lint`; commit as `Milestone 7: save format v2`, open a PR, then report (with the steps to test the migration on a real save) and stop.
+
+## Milestone 8 — Seasons
+
+- A season is a chapter of the city. Ending one archives the city with its stats, lets the player keep ONE building as a keepsake, and starts a fresh empty city. Coins and tasks are untouched, so nothing earned is ever lost.
+- Rules in `src/game/seasons.ts`, all pure: `seasonStats` (tasks completed per category between the season's start and end, plus final population), `endSeason(save, keepsake, now)` (archive + new empty city with the keepsake placed for free at its old spot), `renameSeason`, `defaultSeasonName`. No new balance numbers are needed, so `config.ts` is unchanged.
+- `Keepsake` stops being a placeholder: it records the kept building (`type`, `row`, `col`) and `fromSeason`, so the save knows which tile is the memento. `save.ts` validates it.
+- UI, City view: a season line ("Season 1 · since 15 Sept 2026") with an **End season** button. Clicking it opens an inline confirm step: what will happen, a dropdown to pick the keepsake (or "Keep nothing"; hidden when the city is empty), then "Yes, end season" / Cancel.
+- UI, Gallery view: a City / Gallery toggle in the header. Each past season is a card: name (with a Rename button → inline input), dates, population, a small read-only `MiniCity`, and tasks completed per category. Newest first.
+- `App.tsx` stays around 200 lines by moving the header into `AppHeader.tsx` and the export download into `src/saveFile.ts`; the confirm step lives inside `CityPanel`, so App only gains two handlers.
+- Tests: archiving copies the city exactly (equal but not the same array), the new city is empty except the keepsake, stats count only tasks completed inside the season window, ending with an empty city works, a keepsake that isn't in the city is ignored, renaming trims and ignores blank names, and an ended save still round-trips through `parseSave`.
+- Phone: gallery cards go single-column in `src/phone.css`.
+- Run `npm test`, `npm run build`, `npm run lint`; commit as `Milestone 8: seasons`, open a PR, check it in the browser, then report and stop.

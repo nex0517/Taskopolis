@@ -43,4 +43,8 @@
   .city-tile-emoji {
     font-size: 1.1rem;
   }
+
+  .gallery-cards {
+    grid-template-columns: 1fr;
+  }
 }

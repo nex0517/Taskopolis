@@ -169,6 +169,12 @@ describe('parseSave', () => {
       };
     }
 
+    it('round-trips a keepsake', () => {
+      const save = newGame();
+      save.keepsake = { type: 'school', row: 1, col: 2, fromSeason: 1 };
+      expect(parseSave(serializeSave(save))?.save).toEqual(save);
+    });
+
     it('round-trips an archived season', () => {
       const save = newGame();
       save.seasons.archive.push(archivedSeason());
@@ -185,6 +191,8 @@ describe('parseSave', () => {
       ['archive is not a list', (save: SaveData) => ((save.seasons as { archive: unknown }).archive = {})],
       ['goals missing', (save: SaveData) => delete (save as Partial<SaveData>).goals],
       ['keepsake is a string', (save: SaveData) => ((save as { keepsake: unknown }).keepsake = 'ring')],
+      ['keepsake has no season', (save: SaveData) => ((save as { keepsake: unknown }).keepsake = { type: 'home', row: 0, col: 0 })],
+      ['keepsake is off the grid', (save: SaveData) => (save.keepsake = { type: 'home', row: 12, col: 0, fromSeason: 1 })],
     ])('rejects a version-2 save where %s', (_label, damage) => {
       const save = newGame();
       damage(save);

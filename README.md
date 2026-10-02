@@ -58,6 +58,7 @@ Taskopolis/
 │   │   ├── buildings.ts  # building catalogue and costs
 │   │   ├── city.ts       # city placement and population rules
 │   │   ├── dormant.ts    # quiet (dormant) districts and wake-up messages
+│   │   ├── seasons.ts    # ending a season, season stats, renaming
 │   │   ├── save.ts       # build/check/serialize the save object
 │   │   ├── migrate.ts    # upgrades old saves (v1 → v2: adds seasons)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
@@ -69,8 +70,12 @@ Taskopolis/
 │   │   ├── SaveControls.tsx # export/import buttons
 │   │   ├── WalletPanel.tsx  # category coin balances
 │   │   ├── ShopPanel.tsx    # building catalogue and selection
-│   │   └── CityGrid.tsx     # interactive city tiles
+│   │   ├── CityGrid.tsx     # interactive city tiles
+│   │   ├── EndSeasonPanel.tsx # season line + the End season confirm step
+│   │   ├── Gallery.tsx      # past seasons as cards, with rename
+│   │   └── MiniCity.tsx     # small read-only city used by the gallery
 │   ├── storage.ts        # the ONLY file that touches localStorage
+│   ├── saveFile.ts       # downloads the save as a JSON file
 │   ├── useNow.ts         # current time, refreshed once a minute
 │   ├── useJuice.ts       # one-shot animation triggers
 │   ├── App.tsx           # top-level page: owns the save, wires components
