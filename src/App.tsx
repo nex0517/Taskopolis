@@ -9,7 +9,7 @@ import TaskList from './components/TaskList';
 import WalletPanel from './components/WalletPanel';
 import { payTaskReward, refundTaskReward, rewardForTask } from './game/economy';
 import { cityStats, placeBuilding } from './game/city';
-import { neglectedCategories } from './game/neglect';
+import { WAKE_MESSAGES, dormantCategories, isDormant } from './game/dormant';
 import { parseSave, serializeSave } from './game/save';
 import {
   addTask,
@@ -21,7 +21,7 @@ import {
 import type { BuildingType, SaveData, Task, TaskCategory } from './game/types';
 import { loadSave, writeSave } from './storage';
 import { useJuice } from './useJuice';
-import { useToday } from './useToday';
+import { useNow } from './useNow';
 import './App.css';
 
 function App() {
@@ -56,14 +56,18 @@ function App() {
   }
 
   function handleToggle(task: Task) {
-    if (task.completedAt !== null) {
+    const completing = task.completedAt === null;
+    if (!completing) {
       juice.clearCoinPop();
     } else if (statusFilter !== 'open') {
       // Under "To do" the row vanishes on completion, so the label would show up later instead.
       juice.showCoinPop(task.id, `+${rewardForTask(task)} ${task.category}`);
     }
+    if (completing && isDormant(save.tasks, task.category, new Date())) {
+      juice.showWaking(task.category);
+      setNotice(WAKE_MESSAGES[task.category]);
+    }
     setSave((current) => {
-      const completing = task.completedAt === null;
       return {
         ...current,
         tasks: setTaskCompleted(current.tasks, task.id, completing),
@@ -137,8 +141,8 @@ function App() {
     ? save.tasks.find((task) => task.id === editing.id) ?? null
     : null;
   const stats = cityStats(save.city);
-  const today = useToday();
-  const neglected = neglectedCategories(save.tasks, today);
+  const now = useNow();
+  const dormant = dormantCategories(save.tasks, now);
 
   return (
     <main className="app">
@@ -178,7 +182,6 @@ function App() {
 
           <TaskList
             tasks={visibleTasks}
-            today={today}
             onToggle={handleToggle}
             onEdit={setEditing}
             onDelete={handleDelete}
@@ -191,11 +194,13 @@ function App() {
           city={save.city}
           wallet={save.wallet}
           selected={selectedBuilding}
-          neglected={neglected}
+          dormant={dormant}
           newBuilding={juice.newBuilding}
+          waking={juice.waking}
           onSelect={setSelectedBuilding}
           onTileClick={handleTileClick}
           onBuildEnd={juice.clearNewBuilding}
+          onWakeEnd={juice.clearWaking}
         />
       </div>
     </main>

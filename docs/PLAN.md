@@ -70,3 +70,16 @@
 - No new numbers in `config.ts`: animation timings are visual, not game balance, so they live in the CSS files.
 - Run `npm test`, `npm run build`, and `npm run lint`; all existing tests must still pass.
 - Commit as `Milestone 5: juice`, open a PR, check the animations in the browser, then report and stop.
+
+## Milestone 6 — Dormant & wake the city
+
+- Design change (see `docs/SPEC.md`, "Sprint 2 design"): districts react to inactivity, not overdue tasks. The Milestone 4 neglect rules and visuals are removed.
+- Add `DORMANT_AFTER_DAYS = 7` to `src/game/config.ts`.
+- Add `src/game/dormant.ts` with pure functions: when a category last had a task completed, whether a category is dormant, the list of dormant categories, whether a building is dormant (homes never are), and a friendly wake-up message for each district.
+- A category is dormant when its latest completed task is 7 or more days old. A category with no completed tasks is not dormant. Nothing new goes in the save: it is all worked out from `completedAt`.
+- Remove `src/game/neglect.ts`, the "overdue" label in the task list, and the ⚠️ badge, grey dashed look and pulse on buildings.
+- Look: dormant buildings are dimmed and desaturated, with a calm tooltip. A short line above the grid lists the quiet districts.
+- Waking: completing a task in a dormant category plays a short "lights coming back on" glow across that district and shows a message like "The library is open again." Under reduced motion the glow is off; the message stays.
+- `useNow` replaces `useToday`: it refreshes the current time once a minute, so a district can fall asleep while the app is open.
+- Tests: exactly 7 vs 6 days, a never-used category, homes, waking on completion, un-completing the only recent task; then `npm test`, `npm run build`, `npm run lint`.
+- Commit as `Milestone 6: dormant and wake`, open a PR, check it in the browser, then report and stop.

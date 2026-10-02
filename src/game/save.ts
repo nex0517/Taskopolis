@@ -78,7 +78,7 @@ function isPlacedBuilding(building: unknown): building is PlacedBuilding {
 }
 
 function isDueDate(value: unknown): boolean {
-  // Neglect compares due dates as strings, so only the date-picker format is safe.
+  // The date picker only produces this format, so anything else means a damaged save.
   return (
     value === null ||
     (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value))

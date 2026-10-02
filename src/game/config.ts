@@ -39,3 +39,6 @@ export const PEOPLE_PER_HOME = 4;
 
 /** Residents supported by each district building. */
 export const PEOPLE_PER_SERVICE_BUILDING = 8;
+
+/** Days without a completed task before a district goes quiet. */
+export const DORMANT_AFTER_DAYS = 7;
