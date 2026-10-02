@@ -20,6 +20,9 @@ function EndSeasonPanel({ season, city, onEnd }: EndSeasonPanelProps) {
   const [confirming, setConfirming] = useState(false);
   // '' means "keep nothing"; otherwise the tile key of the chosen building.
   const [chosen, setChosen] = useState('');
+  // Always look the choice up in the *current* city: an import while this box
+  // is open can replace the city, and then the old tile may not exist any more.
+  const keepsake = city.buildings.find((b) => tileKey(b) === chosen) ?? null;
 
   function start() {
     setChosen(city.buildings.length > 0 ? tileKey(city.buildings[0]) : '');
@@ -27,7 +30,6 @@ function EndSeasonPanel({ season, city, onEnd }: EndSeasonPanelProps) {
   }
 
   function confirm() {
-    const keepsake = city.buildings.find((b) => tileKey(b) === chosen) ?? null;
     setConfirming(false);
     onEnd(keepsake);
   }
@@ -55,7 +57,7 @@ function EndSeasonPanel({ season, city, onEnd }: EndSeasonPanelProps) {
             <label>
               Keep one building as a keepsake:{' '}
               <select
-                value={chosen}
+                value={keepsake ? tileKey(keepsake) : ''}
                 onChange={(e) => setChosen(e.target.value)}
               >
                 {city.buildings.map((b) => (

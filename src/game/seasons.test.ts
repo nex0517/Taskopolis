@@ -70,6 +70,25 @@ describe('seasonStats', () => {
     });
   });
 
+  it('gives a task completed exactly at the end to the next season', () => {
+    const tasks = [task('edge', 'Study', ended.toISOString())];
+    const city = { buildings: [] };
+    const first = seasonStats(
+      tasks,
+      city,
+      started.toISOString(),
+      ended.toISOString(),
+    );
+    const next = seasonStats(
+      tasks,
+      city,
+      ended.toISOString(),
+      '2026-11-01T00:00:00.000Z',
+    );
+    expect(first.tasksCompleted.Study).toBe(0);
+    expect(next.tasksCompleted.Study).toBe(1);
+  });
+
   it('records the population at the end', () => {
     const save = livedInSave();
     const stats = seasonStats(

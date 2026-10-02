@@ -35,8 +35,9 @@ export function seasonStats(
     if (task.completedAt === null || !(task.category in tasksCompleted))
       continue;
     const time = Date.parse(task.completedAt);
-    // Tasks finished in an earlier season belong to that season's stats.
-    if (Number.isNaN(time) || time < start || time > end) continue;
+    // A season owns completions from its start up to (not including) its end,
+    // so a task finished at the exact moment one season ends belongs to the next.
+    if (Number.isNaN(time) || time < start || time >= end) continue;
     tasksCompleted[task.category] += 1;
   }
   return { tasksCompleted, population: cityStats(city).population };
