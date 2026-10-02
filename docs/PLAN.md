@@ -1,5 +1,18 @@
 # Taskopolis — Build Plan
 
+## Milestone P1 — Online + installable (PWA)
+
+- Platform track, built alongside Milestone 6: nothing in `src/game/` changes and `App.tsx` is left alone, so the two branches merge cleanly.
+- Deploy with a GitHub Actions workflow (`.github/workflows/deploy.yml`) that runs `npm ci`, `npm test` and `npm run build` on every push to `main`, then publishes `dist/` to GitHub Pages at `https://nex0517.github.io/Taskopolis/`.
+- Set Vite's `base` to `/Taskopolis/` so every asset URL works under that sub-path (the dev server moves to `http://localhost:5173/Taskopolis/` too, so dev and live behave the same).
+- Add `vite-plugin-pwa` (the one allowed package) to generate the web manifest and a service worker that caches the built files, so the app opens offline after the first visit.
+- Icons are plain PNGs drawn from the existing skyline favicon (192, 512, maskable and Apple touch icon) in `public/`, no emoji fonts needed.
+- Updates: the service worker waits instead of taking over silently; a tiny `UpdateBanner` component (rendered from `main.tsx`, not `App.tsx`) shows "Update available — reload" when a new version is deployed.
+- Ask the browser for persistent storage once at start-up (`navigator.storage.persist()` in `src/persist.ts`) so the save is less likely to be evicted.
+- Phone layout (~380px): one shared `src/phone.css` holds all small-screen rules, so no component CSS file is touched. Task rows wrap onto two lines, and the city grid keeps tiles finger-sized and scrolls sideways inside its own box.
+- README: a plain-English "Using it on your phone" section (install on Android and iPhone, one save per device, export/import to move a city).
+- Run `npm test`, `npm run build` and `npm run lint`; commit as `Milestone P1: online + PWA`, open a PR, then report and stop.
+
 ## Milestone 0 — Setup
 
 - Scaffold a Vite + React + TypeScript project in the repo root (strict mode on via the template's tsconfig).
