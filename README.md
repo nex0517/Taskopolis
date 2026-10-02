@@ -59,7 +59,7 @@ Taskopolis/
 │   │   ├── city.ts       # city placement and population rules
 │   │   ├── dormant.ts    # quiet (dormant) districts and wake-up messages
 │   │   ├── save.ts       # build/check/serialize the save object
-│   │   ├── migrate.ts    # upgrades old saves (stub for now)
+│   │   ├── migrate.ts    # upgrades old saves (v1 → v2: adds seasons)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
 │   ├── components/       # React UI (each .tsx has a matching .css)
 │   │   ├── UpdateBanner.tsx # "Update available" when a new version is online

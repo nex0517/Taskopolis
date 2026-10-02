@@ -128,7 +128,7 @@ function App() {
     if (imported === null) {
       setNotice("That file isn't a valid Taskopolis save — nothing changed.");
     } else {
-      setSave(imported);
+      setSave(imported.save);
       setEditing(null);
       setNotice('Save imported.');
     }

@@ -5,7 +5,7 @@
 export const GRID_SIZE = 12;
 
 /** Current save format version — bump when the save shape changes. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** Coins paid when a small task is completed. */
 export const SMALL_TASK_REWARD = 1;

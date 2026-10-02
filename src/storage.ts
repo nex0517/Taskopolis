@@ -1,7 +1,6 @@
 // The ONLY file that talks to localStorage.
 // The storage object is injectable so tests can pass a fake instead of a DOM.
 
-import { SAVE_VERSION } from './game/config';
 import { newGame, parseSave, serializeSave } from './game/save';
 import type { SaveData } from './game/types';
 
@@ -15,7 +14,7 @@ export type LoadStatus =
   | 'new' // nothing saved yet
   | 'ok' // a current-version save loaded fine
   | 'corrupted' // bad data — backed up, started fresh
-  | 'migrated'; // a different saveVersion went through migrate()
+  | 'migrated'; // an older saveVersion was upgraded by migrate()
 
 export interface LoadResult {
   save: SaveData;
@@ -26,26 +25,25 @@ export interface LoadResult {
  * Read the save from storage, handling every edge case:
  * - nothing saved yet -> fresh game
  * - corrupted data    -> copy it to a backup key so it's not lost, start fresh
- * - another version    -> run through migrate() (a no-op for now)
+ * - an older version   -> upgraded by migrate() inside parseSave()
+ * `now` is injectable so tests get a predictable season start time.
  */
 export function loadSave(
   storage: StorageLike = window.localStorage,
+  now: Date = new Date(),
 ): LoadResult {
   const raw = storage.getItem(SAVE_KEY);
   if (raw === null) {
-    return { save: newGame(), status: 'new' };
+    return { save: newGame(now), status: 'new' };
   }
 
-  const save = parseSave(raw);
-  if (save === null) {
+  const parsed = parseSave(raw, now);
+  if (parsed === null) {
     storage.setItem(BACKUP_KEY, raw); // keep the bad data, just out of the way
-    return { save: newGame(), status: 'corrupted' };
+    return { save: newGame(now), status: 'corrupted' };
   }
 
-  return {
-    save,
-    status: save.saveVersion === SAVE_VERSION ? 'ok' : 'migrated',
-  };
+  return { save: parsed.save, status: parsed.migrated ? 'migrated' : 'ok' };
 }
 
 /** Persist the save. Callers use this after every change. */

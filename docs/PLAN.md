@@ -96,3 +96,15 @@
 - `useNow` replaces `useToday`: it refreshes the current time once a minute, so a district can fall asleep while the app is open.
 - Tests: exactly 7 vs 6 days, a never-used category, homes, waking on completion, un-completing the only recent task; then `npm test`, `npm run build`, `npm run lint`.
 - Commit as `Milestone 6: dormant and wake`, open a PR, check it in the browser, then report and stop.
+
+## Milestone 7 — Save format v2 (no new UI)
+
+- Nothing visible changes. The goal is to give Seasons (M8) and Wonders (M9) a place in the save before they exist, and to prove that upgrading never loses data.
+- `SAVE_VERSION` becomes 2 in `src/game/config.ts`. The new fields in `src/game/types.ts`: `seasons` (`current: { number, startedAt }` plus an `archive` list of finished seasons, each with number, name, startedAt, endedAt, a copy of the city and stats: tasks completed per category, population at the end), `goals: []` (filled in by M9) and `keepsake: null`.
+- `newGame()` takes an injectable `now` so season 1 of a fresh game starts at a known time in tests.
+- `src/game/migrate.ts` grows a real v1 → v2 step: the existing city becomes season 1, started at the earliest task's `createdAt` (or `now` if there are no tasks). A version we have never heard of returns `null`, which `parseSave` treats like a corrupted file, so a newer app's save can't be half-read by an older app.
+- `parseSave` checks the fields every version shares, runs `migrate()`, then checks the version-2 fields. It now returns `{ save, migrated }` so `storage.ts` can report "migrated" without re-reading the version itself.
+- Tests are the point of this milestone: a real v1 export migrates with every task, coin and building identical; season 1 starts at the earliest task (deliberately not the first in the file); migrating twice changes nothing; export → import of a v2 save round-trips; damaged v2 saves (missing seasons, bad season number, bad archive entry, bad stats) and unknown versions all go through the backup path in `loadSave`.
+- Also in this branch, as a separate first commit: the three small review findings from Milestone 6 (wake glow not armed when the district has no buildings, unreadable `completedAt` skipped, glow replays on a fast second wake).
+- `docs/SPEC.md` gets a "Save format v2" section under Sprint 2; the README's folder layout no longer calls `migrate.ts` a stub.
+- Run `npm test`, `npm run build` and `npm run lint`; commit as `Milestone 7: save format v2`, open a PR, then report (with the steps to test the migration on a real save) and stop.
