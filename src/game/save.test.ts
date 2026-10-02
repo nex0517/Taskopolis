@@ -4,6 +4,20 @@ import { SAVE_VERSION } from './config';
 import { newGame, parseSave, serializeSave } from './save';
 import { CATEGORIES } from './types';
 
+function saveWithDueDate(dueDate: string | null) {
+  const save = newGame();
+  save.tasks.push({
+    id: 'task-1',
+    title: 'Task with due date',
+    category: 'Study',
+    size: 'S',
+    dueDate,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    completedAt: null,
+  });
+  return save;
+}
+
 describe('newGame', () => {
   it('starts empty with a zeroed wallet for every category', () => {
     const save = newGame();
@@ -37,6 +51,22 @@ describe('parseSave', () => {
     const bad = { ...save, tasks: [{ title: 'no id or fields' }] };
     expect(parseSave(JSON.stringify(bad))).toBeNull();
   });
+
+  it.each(['', '2026-1-4'])(
+    'rejects a noncanonical task due date: %s',
+    (dueDate) => {
+      const save = saveWithDueDate(dueDate);
+      expect(parseSave(serializeSave(save))).toBeNull();
+    },
+  );
+
+  it.each(['2026-01-04', null])(
+    'parses a task with a valid due date: %s',
+    (dueDate) => {
+      const save = saveWithDueDate(dueDate);
+      expect(parseSave(serializeSave(save))).toEqual(save);
+    },
+  );
 
   it('round-trips: serialize then parse gives identical data', () => {
     const save = newGame();

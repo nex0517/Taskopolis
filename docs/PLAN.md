@@ -59,4 +59,14 @@
 - Tests for overdue detection (no due date, due today, due yesterday, due tomorrow, completed), neglected categories (order, duplicates, fixed by completing/deleting), and the local-date key; then run `npm test`, `npm run build`, and `npm run lint`.
 - Commit as `Milestone 4: neglect`, open a PR, check it in the browser, then report and stop.
 
-## Milestone 5 — Juice (not started)
+## Milestone 5 — Juice
+
+- Animations are plain CSS keyframes. React only decides *which* element gets an animation class, and nothing in `src/game/` changes, because animations are presentation, not game rules.
+- Coins flying up: when a task is completed, a small "+3 Study" label (amount from the existing `rewardForTask`) floats up from that task row and fades out, then removes itself.
+- Construction: the building that was just placed pops in (grows from small, overshoots slightly, then settles), so buying something feels like an event.
+- Problem pulse: buildings in a neglected district slowly pulse their opacity, which draws the eye without being alarming.
+- A small `useJuice` hook remembers the last coin reward and the last placed building, with a counter key, so the same animation can replay on a second click.
+- Reduced motion: under `prefers-reduced-motion: reduce`, nothing moves. The coin label only fades in place, and the construction and pulse animations are switched off. The problem look itself (grey and ⚠️) stays.
+- No new numbers in `config.ts`: animation timings are visual, not game balance, so they live in the CSS files.
+- Run `npm test`, `npm run build`, and `npm run lint`; all existing tests must still pass.
+- Commit as `Milestone 5: juice`, open a PR, check the animations in the browser, then report and stop.

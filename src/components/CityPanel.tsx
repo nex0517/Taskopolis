@@ -1,6 +1,7 @@
 import { DISTRICTS } from '../game/buildings';
 import type { BuildingType, CityData, TaskCategory, Wallet } from '../game/types';
 import { DISTRICT_PROBLEMS } from '../game/neglect';
+import type { NewBuilding } from '../useJuice';
 import CityGrid from './CityGrid';
 import ShopPanel from './ShopPanel';
 import './CityPanel.css';
@@ -10,8 +11,10 @@ interface CityPanelProps {
   wallet: Wallet;
   selected: BuildingType | null;
   neglected: TaskCategory[];
+  newBuilding: NewBuilding | null;
   onSelect: (type: BuildingType | null) => void;
   onTileClick: (row: number, col: number) => void;
+  onBuildEnd: () => void;
 }
 
 function CityPanel({
@@ -19,8 +22,10 @@ function CityPanel({
   wallet,
   selected,
   neglected,
+  newBuilding,
   onSelect,
   onTileClick,
+  onBuildEnd,
 }: CityPanelProps) {
   const attentionMessage = neglected
     .map((category) => `${DISTRICTS[category]} (${DISTRICT_PROBLEMS[category]})`)
@@ -38,7 +43,9 @@ function CityPanel({
       <CityGrid
         city={city}
         neglected={neglected}
+        newBuilding={newBuilding}
         onTileClick={onTileClick}
+        onBuildEnd={onBuildEnd}
       />
     </section>
   );

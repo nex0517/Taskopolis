@@ -1,16 +1,27 @@
 import type { Task } from '../game/types';
 import { isOverdue } from '../game/neglect';
+import type { CoinPop } from '../useJuice';
 import './TaskList.css';
 
 interface TaskListProps {
   tasks: Task[];
   today: string;
+  coinPop: CoinPop | null;
   onToggle: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
+  onCoinPopEnd: () => void;
 }
 
-function TaskList({ tasks, today, onToggle, onEdit, onDelete }: TaskListProps) {
+function TaskList({
+  tasks,
+  today,
+  coinPop,
+  onToggle,
+  onEdit,
+  onDelete,
+  onCoinPopEnd,
+}: TaskListProps) {
   if (tasks.length === 0) {
     return <p className="task-list-empty">No tasks here yet.</p>;
   }
@@ -25,6 +36,16 @@ function TaskList({ tasks, today, onToggle, onEdit, onDelete }: TaskListProps) {
             key={task.id}
             className={`${rowClass}${overdue ? ' task-overdue' : ''}`}
           >
+            {coinPop?.taskId === task.id && (
+              <span
+                key={coinPop.key}
+                className="coin-pop"
+                aria-hidden="true"
+                onAnimationEnd={onCoinPopEnd}
+              >
+                {coinPop.text}
+              </span>
+            )}
             <label className="task-check">
               <input
                 type="checkbox"

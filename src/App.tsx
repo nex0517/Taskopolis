@@ -3,13 +3,11 @@ import { useEffect, useState } from 'react';
 import FilterBar, { type StatusFilter } from './components/FilterBar';
 import SaveControls from './components/SaveControls';
 import CityPanel from './components/CityPanel';
+import PopulationBar from './components/PopulationBar';
 import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import WalletPanel from './components/WalletPanel';
-import {
-  payTaskReward,
-  refundTaskReward,
-} from './game/economy';
+import { payTaskReward, refundTaskReward, rewardForTask } from './game/economy';
 import { cityStats, placeBuilding } from './game/city';
 import { neglectedCategories } from './game/neglect';
 import { parseSave, serializeSave } from './game/save';
@@ -22,6 +20,7 @@ import {
 } from './game/tasks';
 import type { BuildingType, SaveData, Task, TaskCategory } from './game/types';
 import { loadSave, writeSave } from './storage';
+import { useJuice } from './useJuice';
 import { useToday } from './useToday';
 import './App.css';
 
@@ -42,6 +41,7 @@ function App() {
       ? 'Your save file was corrupted, so a fresh one was started. The old data was kept as a backup.'
       : '',
   );
+  const juice = useJuice();
 
   // Persist the whole save object every time it changes.
   useEffect(() => writeSave(save), [save]);
@@ -56,6 +56,12 @@ function App() {
   }
 
   function handleToggle(task: Task) {
+    if (task.completedAt !== null) {
+      juice.clearCoinPop();
+    } else if (statusFilter !== 'open') {
+      // Under "To do" the row vanishes on completion, so the label would show up later instead.
+      juice.showCoinPop(task.id, `+${rewardForTask(task)} ${task.category}`);
+    }
     setSave((current) => {
       const completing = task.completedAt === null;
       return {
@@ -88,6 +94,7 @@ function App() {
     if (result.ok) {
       setSave({ ...save, city: result.city, wallet: result.wallet });
       setNotice('');
+      juice.showNewBuilding(row, col);
       return;
     }
     if (result.reason === 'occupied') {
@@ -140,13 +147,7 @@ function App() {
           <h1>Taskopolis</h1>
           <p className="app-tagline">Complete real tasks. Build a city.</p>
         </div>
-        <div className="population">
-          <strong>Population: {stats.population}</strong>
-          <span>
-            Homes house {stats.housing} · Services support{' '}
-            {stats.supported}
-          </span>
-        </div>
+        <PopulationBar stats={stats} />
         <SaveControls onExport={handleExport} onImport={handleImport} />
       </header>
 
@@ -181,6 +182,8 @@ function App() {
             onToggle={handleToggle}
             onEdit={setEditing}
             onDelete={handleDelete}
+            coinPop={juice.coinPop}
+            onCoinPopEnd={juice.clearCoinPop}
           />
         </section>
 
@@ -189,8 +192,10 @@ function App() {
           wallet={save.wallet}
           selected={selectedBuilding}
           neglected={neglected}
+          newBuilding={juice.newBuilding}
           onSelect={setSelectedBuilding}
           onTileClick={handleTileClick}
+          onBuildEnd={juice.clearNewBuilding}
         />
       </div>
     </main>

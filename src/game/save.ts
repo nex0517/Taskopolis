@@ -77,6 +77,14 @@ function isPlacedBuilding(building: unknown): building is PlacedBuilding {
   );
 }
 
+function isDueDate(value: unknown): boolean {
+  // Neglect compares due dates as strings, so only the date-picker format is safe.
+  return (
+    value === null ||
+    (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value))
+  );
+}
+
 function isTask(task: unknown): task is Task {
   if (typeof task !== 'object' || task === null) return false;
   const t = task as Task;
@@ -86,7 +94,7 @@ function isTask(task: unknown): task is Task {
     typeof t.category === 'string' &&
     typeof t.size === 'string' &&
     typeof t.createdAt === 'string' &&
-    (t.dueDate === null || typeof t.dueDate === 'string') &&
+    isDueDate(t.dueDate) &&
     (t.completedAt === null || typeof t.completedAt === 'string')
   );
 }
