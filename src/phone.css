@@ -1,0 +1,46 @@
+/* Small-screen layout. All phone rules live here so the component CSS files
+   stay about desktop layout only. */
+
+@media (max-width: 480px) {
+  .app {
+    padding: 16px 12px;
+  }
+
+  .app-header {
+    gap: 10px;
+  }
+
+  /* Rows get two lines: title on top, details and buttons underneath. */
+  .task-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .task-check {
+    flex-basis: 100%;
+  }
+
+  .task-meta {
+    flex: 1;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  /* 12 columns do not fit on a phone at a tappable size, so the grid keeps
+     40px tiles and scrolls sideways inside its own box instead. */
+  .city-grid {
+    overflow-x: auto;
+  }
+
+  .city-tile {
+    min-width: 40px;
+  }
+
+  .city-tile-name {
+    font-size: 0.5rem;
+  }
+
+  .city-tile-emoji {
+    font-size: 1.1rem;
+  }
+}

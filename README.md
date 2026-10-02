@@ -5,13 +5,16 @@ category (Study, Health, Chores, Money/Admin, Social, Projects) earns its own
 coins, and each coin type funds a different city district — so your city shows
 how balanced your life is.
 
+It runs online at **https://nex0517.github.io/Taskopolis/** and can be installed
+on a phone or laptop like an app (see "Using it on your phone" below).
+
 ## Install and run
 
 You need [Node.js](https://nodejs.org/) (v22.12 or newer — Vitest 5 and Vite 8 both require it) and npm.
 
 ```bash
 npm install   # download dependencies (first time only)
-npm run dev   # start the dev server — open the URL it prints (usually http://localhost:5173)
+npm run dev   # start the dev server — open the URL it prints (usually http://localhost:5173/Taskopolis/)
 npm test      # run the tests once
 npm run build # type-check and build the production bundle
 npm run lint  # run the linter (oxlint, comes with the Vite template)
@@ -41,9 +44,10 @@ run with Vitest. Before every milestone we run `npm test` and
 
 ```
 Taskopolis/
+├── .github/workflows/deploy.yml  # builds and publishes main to GitHub Pages
 ├── docs/PLAN.md          # milestone-by-milestone build plan
 ├── index.html            # the single page Vite serves
-├── public/               # static files served as-is (favicon)
+├── public/               # static files served as-is (favicon, app icons)
 ├── src/
 │   ├── game/             # ALL game rules — plain TS, no React/DOM
 │   │   ├── config.ts     # every balance number, commented
@@ -57,6 +61,7 @@ Taskopolis/
 │   │   ├── migrate.ts    # upgrades old saves (stub for now)
 │   │   └── *.test.ts     # Vitest tests, next to the code they test
 │   ├── components/       # React UI (each .tsx has a matching .css)
+│   │   ├── UpdateBanner.tsx # "Update available" when a new version is online
 │   │   ├── TaskForm.tsx  # add + edit form
 │   │   ├── TaskList.tsx  # the task rows
 │   │   ├── FilterBar.tsx # category + done/not-done filters
@@ -70,8 +75,31 @@ Taskopolis/
 │   ├── App.tsx           # top-level page: owns the save, wires components
 │   ├── App.css           # styles for App
 │   ├── index.css         # global base styles
+│   ├── phone.css         # small-screen layout rules, all in one place
+│   ├── persist.ts        # asks the browser to keep our storage
 │   └── main.tsx          # entry point: mounts <App/> into index.html
 ├── package.json          # npm scripts and dependencies
 ├── tsconfig*.json        # TypeScript settings (strict mode on)
-└── vite.config.ts        # Vite settings
+└── vite.config.ts        # Vite settings: base path, PWA manifest, offline cache
 ```
+
+## Using it on your phone
+
+The live site is https://nex0517.github.io/Taskopolis/. You can use it in the
+browser, or install it so it opens like a normal app with its own icon:
+
+- **Android (Chrome):** open the site, tap the ⋮ menu, then **Add to Home
+  screen** (or **Install app**), then **Install**.
+- **iPhone / iPad (Safari):** open the site, tap the Share button (the square
+  with an arrow), scroll down and tap **Add to Home Screen**, then **Add**.
+- **Laptop (Chrome / Edge):** click the small install icon at the right end of
+  the address bar, or use the browser menu → **Install Taskopolis**.
+
+After the first visit the app also works offline, and when a new version is
+published a small "Update available — Reload" banner appears.
+
+**Each device keeps its own save.** There are no accounts and nothing is sent
+anywhere, so your phone and your laptop each have their own city — there is
+no sync yet. To move a city between devices, click **Export save** on one
+device (it downloads a small `.json` file), get that file onto the other
+device (email it to yourself, for example), and click **Import save** there.
