@@ -8,7 +8,7 @@ import TaskForm from './components/TaskForm';
 import TaskList from './components/TaskList';
 import WalletPanel from './components/WalletPanel';
 import { payTaskReward, refundTaskReward, rewardForTask } from './game/economy';
-import { cityStats, placeBuilding } from './game/city';
+import { cityStats, hasDistrictBuilding, placeBuilding } from './game/city';
 import { WAKE_MESSAGES, dormantCategories, isDormant } from './game/dormant';
 import { parseSave, serializeSave } from './game/save';
 import {
@@ -64,7 +64,10 @@ function App() {
       juice.showCoinPop(task.id, `+${rewardForTask(task)} ${task.category}`);
     }
     if (completing && isDormant(save.tasks, task.category, new Date())) {
-      juice.showWaking(task.category);
+      // No building means nothing plays (and clears) the glow, so don't arm it.
+      if (hasDistrictBuilding(save.city, task.category)) {
+        juice.showWaking(task.category);
+      }
       setNotice(WAKE_MESSAGES[task.category]);
     }
     setSave((current) => {
@@ -125,7 +128,7 @@ function App() {
     if (imported === null) {
       setNotice("That file isn't a valid Taskopolis save — nothing changed.");
     } else {
-      setSave(imported);
+      setSave(imported.save);
       setEditing(null);
       setNotice('Save imported.');
     }

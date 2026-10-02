@@ -62,3 +62,19 @@ back should feel like a reward, not a guilt pile.
   example "The library is open again." Under `prefers-reduced-motion` the
   animation is switched off, but the message still shows.
 - Due dates stay on tasks, but they no longer affect the city.
+
+### Save format v2 (Milestone 7)
+No visible features. The save gains room for Seasons and Wonders.
+
+- `saveVersion` is 2. New fields:
+  - `seasons.current`: `{ number, startedAt }` — the season being played.
+  - `seasons.archive`: a list of finished seasons, each with `number`, `name`,
+    `startedAt`, `endedAt`, a copy of the `city` as it was, and `stats`
+    (`tasksCompleted` per category and the `population` at the end).
+  - `goals`: an empty list until Wonders (Milestone 9).
+  - `keepsake`: `null` until a later milestone defines it.
+- Upgrading a version-1 save: the existing city becomes season 1, started at
+  the earliest task's `createdAt` (or now, if there are no tasks). No task,
+  coin or building changes. Upgrading an already-current save changes nothing.
+- A save whose version the app has never heard of is treated like a corrupted
+  one: backed up under the second localStorage key and a fresh game started.

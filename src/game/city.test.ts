@@ -8,7 +8,12 @@ import {
   PEOPLE_PER_SERVICE_BUILDING,
   TIER_1_BUILDING_COST,
 } from './config';
-import { buildingAt, cityStats, placeBuilding } from './city';
+import {
+  buildingAt,
+  cityStats,
+  hasDistrictBuilding,
+  placeBuilding,
+} from './city';
 import { newGame } from './save';
 import { CATEGORIES, type CityData } from './types';
 import type { Wallet } from './types';
@@ -124,5 +129,19 @@ describe('buildingAt', () => {
 
   it('returns undefined when the tile is empty', () => {
     expect(buildingAt(newGame().city, 2, 3)).toBeUndefined();
+  });
+});
+
+describe('hasDistrictBuilding', () => {
+  it('is false for an empty city and for homes, true once a district building exists', () => {
+    const empty = newGame().city;
+    expect(hasDistrictBuilding(empty, 'Study')).toBe(false);
+    const homesOnly: CityData = { buildings: [{ type: 'home', row: 0, col: 0 }] };
+    expect(hasDistrictBuilding(homesOnly, 'Study')).toBe(false);
+    const withSchool: CityData = {
+      buildings: [...homesOnly.buildings, { type: 'school', row: 0, col: 1 }],
+    };
+    expect(hasDistrictBuilding(withSchool, 'Study')).toBe(true);
+    expect(hasDistrictBuilding(withSchool, 'Health')).toBe(false);
   });
 });

@@ -5,7 +5,13 @@ import {
 } from './config';
 import { canAffordBuilding, payForBuilding } from './economy';
 import { getBuilding } from './buildings';
-import type { BuildingType, CityData, PlacedBuilding, Wallet } from './types';
+import type {
+  BuildingType,
+  CityData,
+  PlacedBuilding,
+  TaskCategory,
+  Wallet,
+} from './types';
 
 export function buildingAt(
   city: CityData,
@@ -14,6 +20,16 @@ export function buildingAt(
 ): PlacedBuilding | undefined {
   return city.buildings.find(
     (building) => building.row === row && building.col === col,
+  );
+}
+
+/** True when at least one building of this category's district is placed. */
+export function hasDistrictBuilding(
+  city: CityData,
+  category: TaskCategory,
+): boolean {
+  return city.buildings.some(
+    (building) => getBuilding(building.type).category === category,
   );
 }
 

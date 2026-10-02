@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { SAVE_VERSION } from './config';
 import { newGame, parseSave, serializeSave } from './save';
+import type {
+  ArchivedSeason,
+  CurrentSeason,
+  SaveData,
+  SeasonStats,
+  TasksPerCategory,
+} from './types';
 import { CATEGORIES } from './types';
 
 function saveWithDueDate(dueDate: string | null) {
@@ -27,6 +34,17 @@ describe('newGame', () => {
     for (const category of CATEGORIES) {
       expect(save.wallet[category]).toBe(0);
     }
+  });
+
+  it('starts season 1 at the given time with nothing archived', () => {
+    const now = new Date('2026-03-01T09:00:00.000Z');
+    const save = newGame(now);
+    expect(save.seasons).toEqual({
+      current: { number: 1, startedAt: '2026-03-01T09:00:00.000Z' },
+      archive: [],
+    });
+    expect(save.goals).toEqual([]);
+    expect(save.keepsake).toBeNull();
   });
 });
 
@@ -64,7 +82,7 @@ describe('parseSave', () => {
     'parses a task with a valid due date: %s',
     (dueDate) => {
       const save = saveWithDueDate(dueDate);
-      expect(parseSave(serializeSave(save))).toEqual(save);
+      expect(parseSave(serializeSave(save))?.save).toEqual(save);
     },
   );
 
@@ -81,7 +99,7 @@ describe('parseSave', () => {
     });
     save.wallet.Chores = 7;
     save.city.buildings.push({ type: 'home', row: 0, col: 1 });
-    expect(parseSave(serializeSave(save))).toEqual(save);
+    expect(parseSave(serializeSave(save))?.save).toEqual(save);
   });
 
   it('rejects an unknown building type', () => {
@@ -101,7 +119,7 @@ describe('parseSave', () => {
 
   it('still parses an old save with an empty buildings array', () => {
     const save = newGame();
-    expect(parseSave(serializeSave(save))).toEqual(save);
+    expect(parseSave(serializeSave(save))?.save).toEqual(save);
   });
 
   it('rejects buildings that overlap the same tile', () => {
@@ -123,11 +141,67 @@ describe('parseSave', () => {
       { type: 'home', row: 0, col: 0 },
       { type: 'school', row: 0, col: 1 },
     );
-    expect(parseSave(serializeSave(save))).toEqual(save);
+    expect(parseSave(serializeSave(save))?.save).toEqual(save);
   });
 
-  it('sends other saveVersions through migrate() and still returns data', () => {
+  it('reports a current-version save as not migrated', () => {
+    const save = newGame();
+    expect(parseSave(serializeSave(save))?.migrated).toBe(false);
+  });
+
+  it('rejects a saveVersion it has never heard of', () => {
     const save = { ...newGame(), saveVersion: 99 };
-    expect(parseSave(serializeSave(save))).toEqual(save);
+    expect(parseSave(serializeSave(save))).toBeNull();
+  });
+
+  describe('version 2 fields', () => {
+    function archivedSeason(): ArchivedSeason {
+      const tasksCompleted = {} as TasksPerCategory;
+      for (const category of CATEGORIES) tasksCompleted[category] = 0;
+      tasksCompleted.Study = 4;
+      return {
+        number: 1,
+        name: 'Spring',
+        startedAt: '2026-01-01T00:00:00.000Z',
+        endedAt: '2026-03-01T00:00:00.000Z',
+        city: { buildings: [{ type: 'school', row: 2, col: 2 }] },
+        stats: { tasksCompleted, population: 8 },
+      };
+    }
+
+    it('round-trips an archived season', () => {
+      const save = newGame();
+      save.seasons.archive.push(archivedSeason());
+      save.seasons.current = { number: 2, startedAt: '2026-03-01T00:00:00.000Z' };
+      expect(parseSave(serializeSave(save))?.save).toEqual(save);
+    });
+
+    it.each([
+      ['seasons missing', (save: SaveData) => delete (save as Partial<SaveData>).seasons],
+      ['current is null', (save: SaveData) => ((save.seasons as { current: unknown }).current = null)],
+      ['season number is 0', (save: SaveData) => (save.seasons.current.number = 0)],
+      ['season number is a string', (save: SaveData) => ((save.seasons.current as { number: unknown }).number = '1')],
+      ['startedAt missing', (save: SaveData) => delete (save.seasons.current as Partial<CurrentSeason>).startedAt],
+      ['archive is not a list', (save: SaveData) => ((save.seasons as { archive: unknown }).archive = {})],
+      ['goals missing', (save: SaveData) => delete (save as Partial<SaveData>).goals],
+      ['keepsake is a string', (save: SaveData) => ((save as { keepsake: unknown }).keepsake = 'ring')],
+    ])('rejects a version-2 save where %s', (_label, damage) => {
+      const save = newGame();
+      damage(save);
+      expect(parseSave(JSON.stringify(save))).toBeNull();
+    });
+
+    it.each([
+      ['has no name', (season: ArchivedSeason) => delete (season as Partial<ArchivedSeason>).name],
+      ['has an invalid city', (season: ArchivedSeason) => season.city.buildings.push({ type: 'school', row: 2, col: 2 })],
+      ['has no population', (season: ArchivedSeason) => delete (season.stats as Partial<SeasonStats>).population],
+      ['misses a category count', (season: ArchivedSeason) => delete (season.stats.tasksCompleted as Partial<TasksPerCategory>).Social],
+    ])('rejects an archived season that %s', (_label, damage) => {
+      const save = newGame();
+      const season = archivedSeason();
+      damage(season);
+      save.seasons.archive.push(season);
+      expect(parseSave(JSON.stringify(save))).toBeNull();
+    });
   });
 });

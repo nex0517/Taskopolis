@@ -25,6 +25,9 @@ export function lastCompletedAt(
   for (const task of tasks) {
     if (task.category !== category || task.completedAt === null) continue;
     const time = Date.parse(task.completedAt);
+    // A hand-edited save may hold a date we can't read; skip it rather than
+    // letting NaN make the category never go quiet.
+    if (Number.isNaN(time)) continue;
     if (latest === null || time > latest) latest = time;
   }
   return latest;

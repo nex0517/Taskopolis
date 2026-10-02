@@ -72,10 +72,51 @@ export interface CityData {
   buildings: PlacedBuilding[];
 }
 
-/** Everything we persist — one object in localStorage. */
+/** How many tasks were completed in each category while a season ran. */
+export type TasksPerCategory = Record<TaskCategory, number>;
+
+export interface SeasonStats {
+  tasksCompleted: TasksPerCategory;
+  /** Population when the season ended. */
+  population: number;
+}
+
+/** The season being played right now. It gets a name when it is archived. */
+export interface CurrentSeason {
+  number: number;
+  /** ISO timestamp of when this season began. */
+  startedAt: string;
+}
+
+/** A finished season, kept so old cities can be looked at later. */
+export interface ArchivedSeason {
+  number: number;
+  name: string;
+  startedAt: string;
+  endedAt: string;
+  /** A copy of the city as it was when the season ended. */
+  city: CityData;
+  stats: SeasonStats;
+}
+
+export interface SeasonsData {
+  current: CurrentSeason;
+  archive: ArchivedSeason[];
+}
+
+/** A Wonder goal. Milestone 9 decides its fields; until then the list stays empty. */
+export type Goal = Record<string, never>;
+
+/** Something kept from a past season. A later milestone defines it; null for now. */
+export type Keepsake = Record<string, never>;
+
+/** Everything we persist — one object in localStorage (format version 2). */
 export interface SaveData {
   saveVersion: number;
   tasks: Task[];
   wallet: Wallet;
   city: CityData;
+  seasons: SeasonsData;
+  goals: Goal[];
+  keepsake: Keepsake | null;
 }

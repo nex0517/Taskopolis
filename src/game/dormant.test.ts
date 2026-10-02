@@ -46,6 +46,16 @@ describe('lastCompletedAt', () => {
     ];
     expect(lastCompletedAt(tasks, 'Study')).toBe(Date.parse(daysAgo(2)));
   });
+
+  it('ignores a completedAt that is not a readable date', () => {
+    const tasks = [
+      makeTask({ id: 'bad', completedAt: 'yesterday' }),
+      makeTask({ id: 'ok', completedAt: daysAgo(10) }),
+    ];
+    expect(lastCompletedAt(tasks, 'Study')).toBe(Date.parse(daysAgo(10)));
+    expect(lastCompletedAt([tasks[0]], 'Study')).toBeNull();
+    expect(isDormant(tasks, 'Study', now)).toBe(true);
+  });
 });
 
 describe('isDormant', () => {
